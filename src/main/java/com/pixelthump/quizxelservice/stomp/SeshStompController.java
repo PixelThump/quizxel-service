@@ -1,12 +1,12 @@
 package com.pixelthump.quizxelservice.stomp;
 import com.pixelthump.quizxelservice.messaging.StompMessageFactory;
-import com.pixelthump.quizxelservice.service.SeshService;
-import com.pixelthump.quizxelservice.service.exception.NoSuchSeshException;
-import com.pixelthump.quizxelservice.sesh.model.SeshState;
-import com.pixelthump.quizxelservice.sesh.exception.PlayerAlreadyJoinedException;
-import com.pixelthump.quizxelservice.sesh.exception.PlayerNotInSeshException;
 import com.pixelthump.quizxelservice.messaging.model.message.CommandStompMessage;
 import com.pixelthump.quizxelservice.messaging.model.message.StompMessage;
+import com.pixelthump.quizxelservice.service.SeshService;
+import com.pixelthump.quizxelservice.service.exception.NoSuchSeshException;
+import com.pixelthump.quizxelservice.sesh.exception.PlayerAlreadyJoinedException;
+import com.pixelthump.quizxelservice.sesh.exception.PlayerNotInSeshException;
+import com.pixelthump.quizxelservice.sesh.model.SeshState;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.handler.annotation.DestinationVariable;
@@ -33,11 +33,21 @@ public class SeshStompController {
     public StompMessage joinSeshAsController(@Header final String playerName, @DestinationVariable final String seshCode, final @Header("simpSessionId") String socketId) {
 
         log.info("Started joinSeshAsController with playerName={} seshCode={}, socketId={}", playerName, seshCode, socketId);
-        SeshState state = seshService.joinAsController(seshCode, playerName, socketId);
-        StompMessage reply = messageFactory.getMessage(state);
-        log.info("Finished joinSeshAsController with playerName={}, seshCode={}, socketId={}, reply={}",playerName, seshCode, socketId, reply);
 
-        return reply;
+        try {
+            SeshState state = seshService.joinAsController(seshCode, playerName, socketId);
+            StompMessage reply = messageFactory.getMessage(state);
+            log.info("Finished joinSeshAsController with playerName={}, seshCode={}, socketId={}, reply={}", playerName, seshCode, socketId, reply);
+            return reply;
+
+        }catch (NoSuchSeshException e){
+
+            StompMessage reply = messageFactory.getMessage(e);
+            log.error("StompControllerImpl: Exiting joinSeshAsHost(reply={})", reply);
+            return reply;
+        }
+
+
     }
 
     @SubscribeMapping("/topic/sesh/{seshCode}/host")
@@ -46,7 +56,6 @@ public class SeshStompController {
         log.info("StompControllerImpl: Entering joinSeshAsHost(seshCode={}, socketId={})", seshCode, socketId);
 
         try {
-
             SeshState state = seshService.joinAsHost(seshCode, socketId);
             StompMessage reply = messageFactory.getMessage(state);
 
@@ -67,7 +76,6 @@ public class SeshStompController {
         log.info("Entering sendCommandToSesh with message={}, seshCode={}, socketId={}", message, seshCode, socketId);
 
         try {
-
             message.getCommand().setPlayerId(socketId);
             this.seshService.sendCommandToSesh(message, seshCode);
             StompMessage reply = messageFactory.getAckMessage();
