@@ -9,10 +9,10 @@
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
     <groupId>com.pixelthump</groupId>
-    <artifactId>backend-template</artifactId>
+    <artifactId>quizxel-service</artifactId>
     <version>0.1.0-SNAPSHOT</version>
-    <name>Template</name>
-    <description>This is a template for backend java services</description>
+    <name>Quizxel Service</name>
+    <description>This is the service containing the logic for the game quizxel</description>
     <properties>
         <java.version>17</java.version>
          <git.repo.owner>PixelThump</git.repo.owner>

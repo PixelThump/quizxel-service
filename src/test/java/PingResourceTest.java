@@ -1,6 +1,6 @@
-import com.pixelthump.backendtemplate.Application;
-import com.pixelthump.backendtemplate.rest.PingResource;
-import com.pixelthump.backendtemplate.rest.model.Ping;
+import com.pixelthump.quizxelservice.Application;
+import com.pixelthump.quizxelservice.rest.PingResource;
+import com.pixelthump.quizxelservice.rest.model.Ping;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;

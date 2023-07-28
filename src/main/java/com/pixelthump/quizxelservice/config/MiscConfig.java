@@ -1,4 +1,4 @@
-package com.pixelthump.backendtemplate.config;
+package com.pixelthump.quizxelservice.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

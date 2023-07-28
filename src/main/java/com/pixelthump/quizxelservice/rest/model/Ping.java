@@ -1,4 +1,4 @@
-package com.pixelthump.backendtemplate.rest.model;
+package com.pixelthump.quizxelservice.rest.model;
 import java.time.OffsetDateTime;
 
 /**
@@ -6,7 +6,7 @@ import java.time.OffsetDateTime;
  */
 public class Ping {
 
-	private OffsetDateTime time;
+	private final OffsetDateTime time;
 
 	public Ping() {
 		time = OffsetDateTime.now();

@@ -1,4 +1,4 @@
-package com.pixelthump.backendtemplate;
+package com.pixelthump.quizxelservice;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
