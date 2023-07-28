@@ -12,10 +12,12 @@ import java.util.Map;
 public class SeshServiceImpl implements SeshService {
 
     private final Map<String, Sesh> seshs;
+    private final SeshFactory seshFactory;
 
-    public SeshServiceImpl() {
+    public SeshServiceImpl(SeshFactory seshFactory) {
 
         this.seshs = new HashMap<>();
+        this.seshFactory = seshFactory;
     }
 
     @Override
@@ -32,10 +34,26 @@ public class SeshServiceImpl implements SeshService {
         return extractSeshInfo(sesh);
     }
 
+    @Override
+    public SeshInfo hostSesh(String seshCode) {
+
+        if (seshs.containsKey(seshCode)){
+
+            String responseMessage = "Sesh with seshCode " + seshCode + " already exists";
+            throw new ResponseStatusException(HttpStatus.CONFLICT, responseMessage);
+        }
+
+        Sesh sesh = seshFactory.createSesh(seshCode);
+        seshs.put(seshCode, sesh);
+
+        return extractSeshInfo(sesh);
+    }
+
     private SeshInfo extractSeshInfo(Sesh sesh) {
 
         SeshInfo seshInfo = new SeshInfo();
         seshInfo.setSeshCode(sesh.getSeshCode());
+
         return seshInfo;
     }
 }

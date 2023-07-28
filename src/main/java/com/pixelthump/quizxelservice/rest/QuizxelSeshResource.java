@@ -32,4 +32,16 @@ public class QuizxelSeshResource {
 
         return quizxelSesh;
     }
+
+    @PostMapping
+    @ResponseBody
+    public QuizxelSeshInfo hostSesh(@PathVariable String seshCode){
+
+        log.info("Started hostSesh with seshCode={}", seshCode);
+        SeshInfo sesh = seshService.hostSesh(seshCode);
+        QuizxelSeshInfo quizxelSesh = modelMapper.map(sesh, QuizxelSeshInfo.class);
+        log.info("Finished hostSesh with seshCode={}, result={}", seshCode, quizxelSesh);
+
+        return quizxelSesh;
+    }
 }
