@@ -1,5 +1,5 @@
+package com.pixelthump.quizxelservice.rest;
 import com.pixelthump.quizxelservice.Application;
-import com.pixelthump.quizxelservice.rest.PingResource;
 import com.pixelthump.quizxelservice.rest.model.Ping;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
