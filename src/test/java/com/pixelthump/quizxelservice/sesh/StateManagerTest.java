@@ -235,6 +235,7 @@ class StateManagerTest {
         when(playerManager.isVIP(any())).thenReturn(false);
         stateManager.processCommand(new Command("playerId", new Action<>("buzzer", "playerId")));
         when(playerManager.isVIP(any())).thenReturn(true);
+        when(playerManager.getPlayer("playerId")).thenReturn(players.get(0));
         stateManager.processCommand(new Command("playerId", new Action<>("freeBuzzer", true)));
 
 
