@@ -19,6 +19,7 @@ public class PlayerManager {
     @Setter
     private boolean isJoinable;
     private final Map<String, Player> players;
+    @Getter
     private String hostId;
 
     public PlayerManager() {
@@ -94,23 +95,13 @@ public class PlayerManager {
         return this.players.values().stream().anyMatch(Player::getVip);
     }
 
-    public Player getPlayer(String buzzedPlayerId) {
+    public Player getPlayer(String playerId) {
 
-        return this.players.get(buzzedPlayerId);
+        return this.players.get(playerId);
     }
 
     public Long getPlayerCount() {
 
         return (long) this.players.size();
-    }
-
-    public String getHostId() {
-
-        return this.hostId;
-    }
-
-    public String getVipId() {
-
-        return this.players.values().stream().filter(Player::getVip).toList().get(0).getPlayerId();
     }
 }
