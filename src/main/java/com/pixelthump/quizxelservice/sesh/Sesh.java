@@ -1,10 +1,10 @@
 package com.pixelthump.quizxelservice.sesh;
 import com.pixelthump.quizxelservice.messaging.MessageBroadcaster;
+import com.pixelthump.quizxelservice.messaging.model.Command;
 import com.pixelthump.quizxelservice.sesh.exception.PlayerAlreadyJoinedException;
 import com.pixelthump.quizxelservice.sesh.exception.PlayerNotInSeshException;
 import com.pixelthump.quizxelservice.sesh.exception.SeshCurrentlyNotJoinableException;
 import com.pixelthump.quizxelservice.sesh.exception.SeshIsFullException;
-import com.pixelthump.quizxelservice.messaging.model.Command;
 import com.pixelthump.quizxelservice.sesh.model.SeshState;
 import lombok.Getter;
 import org.springframework.context.annotation.Scope;
@@ -26,6 +26,7 @@ public class Sesh {
     private final PlayerManager playerManager;
     @Getter
     private LocalDateTime lastInteractionTime;
+    @Getter
     private final Deque<Command> unprocessedCommands;
 
     public Sesh(StateManager stateManager, MessageBroadcaster broadcaster, PlayerManager playerManager) {
@@ -39,6 +40,10 @@ public class Sesh {
 
     public void start(String seshCode) {
 
+        if (seshCode == null) {
+
+            throw new IllegalArgumentException();
+        }
         stateManager.setSeshCode(seshCode);
         this.seshCode = seshCode;
         this.lastInteractionTime = LocalDateTime.now();
