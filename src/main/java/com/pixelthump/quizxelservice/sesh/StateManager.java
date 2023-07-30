@@ -82,12 +82,7 @@ public class StateManager {
 
         } else if (currentStage == SeshStage.MAIN) {
 
-            ControllerMainStageState state = new ControllerMainStageState();
-            state.setPlayers(this.playerManager.getPlayers());
-            state.setSeshCode(this.getSeshCode());
-            state.setCurrentStage(this.currentStage);
-
-            return state;
+            return getHostState();
         }
         return null;
     }
