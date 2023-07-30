@@ -40,7 +40,7 @@ public class SeshStompController {
             log.info("Finished joinSeshAsController with playerName={}, seshCode={}, socketId={}, reply={}", playerName, seshCode, socketId, reply);
             return reply;
 
-        }catch (NoSuchSeshException e){
+        }catch (NoSuchSeshException | PlayerAlreadyJoinedException e){
 
             StompMessage reply = messageFactory.getMessage(e);
             log.error("StompControllerImpl: Exiting joinSeshAsHost(reply={})", reply);
