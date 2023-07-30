@@ -9,6 +9,6 @@ public class SeshInfo {
 
     public SeshInfo() {
 
-        this.seshType = "QUIZXEL";
+        this.seshType = "quizxel";
     }
 }

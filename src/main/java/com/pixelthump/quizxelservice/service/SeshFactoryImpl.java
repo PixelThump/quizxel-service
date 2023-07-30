@@ -1,5 +1,5 @@
 package com.pixelthump.quizxelservice.service;
-import com.pixelthump.quizxelservice.service.model.Sesh;
+import com.pixelthump.quizxelservice.sesh.Sesh;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Component;

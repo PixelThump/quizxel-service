@@ -8,7 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/{seshCode}")
+@RequestMapping("/seshs")
 @Log4j2
 public class QuizxelSeshResource {
     private final SeshService seshService;
@@ -21,7 +21,7 @@ public class QuizxelSeshResource {
         this.modelMapper = modelMapper;
     }
 
-    @GetMapping
+    @GetMapping("/{seshCode}")
     @ResponseBody
     public QuizxelSeshInfo getSeshInfo(@PathVariable String seshCode) {
 
@@ -35,7 +35,7 @@ public class QuizxelSeshResource {
 
     @PostMapping
     @ResponseBody
-    public QuizxelSeshInfo hostSesh(@PathVariable String seshCode){
+    public QuizxelSeshInfo hostSesh(@RequestBody String seshCode){
 
         log.info("Started hostSesh with seshCode={}", seshCode);
         SeshInfo sesh = seshService.hostSesh(seshCode);
