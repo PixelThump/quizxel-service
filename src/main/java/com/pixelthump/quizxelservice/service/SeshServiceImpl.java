@@ -1,6 +1,7 @@
 package com.pixelthump.quizxelservice.service;
 import com.pixelthump.quizxelservice.service.exception.NoSuchSeshException;
 import com.pixelthump.quizxelservice.service.model.SeshInfo;
+import com.pixelthump.quizxelservice.sesh.model.Player;
 import com.pixelthump.quizxelservice.sesh.model.SeshState;
 import com.pixelthump.quizxelservice.sesh.Sesh;
 import com.pixelthump.quizxelservice.messaging.model.message.CommandStompMessage;
@@ -46,7 +47,7 @@ public class SeshServiceImpl implements SeshService {
     }
 
     @Override
-    public SeshState joinAsController(String seshCode, String playerName, String socketId) {
+    public SeshState joinAsController(String seshCode, Player player) {
 
         final Sesh sesh;
 
@@ -59,7 +60,7 @@ public class SeshServiceImpl implements SeshService {
             throw new NoSuchSeshException(e.getMessage());
         }
 
-        return sesh.joinAsController(playerName, socketId);
+        return sesh.joinAsController(player.getPlayerName(), player.getPlayerId());
     }
 
     public SeshState joinAsHost(String seshCode, String socketId) {
