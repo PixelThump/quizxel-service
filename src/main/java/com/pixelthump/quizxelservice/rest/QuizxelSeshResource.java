@@ -2,6 +2,7 @@ package com.pixelthump.quizxelservice.rest;
 import com.pixelthump.quizxelservice.messaging.model.message.CommandStompMessage;
 import com.pixelthump.quizxelservice.rest.model.QuizxelPlayer;
 import com.pixelthump.quizxelservice.rest.model.QuizxelSeshInfo;
+import com.pixelthump.quizxelservice.rest.model.QuizxelState;
 import com.pixelthump.quizxelservice.service.SeshService;
 import com.pixelthump.quizxelservice.service.model.SeshInfo;
 import com.pixelthump.quizxelservice.sesh.model.Player;
@@ -59,21 +60,23 @@ public class QuizxelSeshResource {
 
     @PostMapping("/{seshCode}/players/controller")
     @ResponseBody
-    public SeshState joinAsController( @PathVariable String seshCode , @RequestBody QuizxelPlayer quizxelPlayer){
+    public QuizxelState joinAsController(@PathVariable String seshCode , @RequestBody QuizxelPlayer quizxelPlayer){
         log.info("Started addCommand with seshCode={}, quizxelPlayer={}", seshCode, quizxelPlayer);
         Player player = modelMapper.map(quizxelPlayer, Player.class);
+        SeshState state = seshService.joinAsController(seshCode, player);
         log.info("Finished addCommand with seshCode={}, quizxelPlayer={}", seshCode, quizxelPlayer);
 
-        return seshService.joinAsController(seshCode, player);
+        return new QuizxelState(state);
     }
 
     @PostMapping("/{seshCode}/players/host")
     @ResponseBody
-    public SeshState joinAsHost( @PathVariable String seshCode , @RequestBody QuizxelPlayer quizxelPlayer){
+    public QuizxelState joinAsHost( @PathVariable String seshCode , @RequestBody QuizxelPlayer quizxelPlayer){
         log.info("Started addCommand with seshCode={}, quizxelPlayer={}", seshCode, quizxelPlayer);
         Player player = modelMapper.map(quizxelPlayer, Player.class);
+        SeshState state = seshService.joinAsHost(seshCode, player.getPlayerId());
         log.info("Finished addCommand with seshCode={}, quizxelPlayer={}", seshCode, quizxelPlayer);
 
-        return seshService.joinAsHost(seshCode, player.getPlayerId());
+        return new QuizxelState(state);
     }
 }
