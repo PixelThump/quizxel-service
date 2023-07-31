@@ -5,6 +5,7 @@ import com.pixelthump.quizxelservice.rest.model.QuizxelSeshInfo;
 import com.pixelthump.quizxelservice.service.SeshService;
 import com.pixelthump.quizxelservice.service.model.SeshInfo;
 import com.pixelthump.quizxelservice.sesh.model.Player;
+import com.pixelthump.quizxelservice.sesh.model.SeshState;
 import lombok.extern.log4j.Log4j2;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -58,19 +59,21 @@ public class QuizxelSeshResource {
 
     @PostMapping("/{seshCode}/players/controller")
     @ResponseBody
-    public void joinAsController( @PathVariable String seshCode , @RequestBody QuizxelPlayer quizxelPlayer){
+    public SeshState joinAsController( @PathVariable String seshCode , @RequestBody QuizxelPlayer quizxelPlayer){
         log.info("Started addCommand with seshCode={}, quizxelPlayer={}", seshCode, quizxelPlayer);
         Player player = modelMapper.map(quizxelPlayer, Player.class);
-        seshService.joinAsController(seshCode, player);
         log.info("Finished addCommand with seshCode={}, quizxelPlayer={}", seshCode, quizxelPlayer);
+
+        return seshService.joinAsController(seshCode, player);
     }
 
     @PostMapping("/{seshCode}/players/host")
     @ResponseBody
-    public void joinAsHost( @PathVariable String seshCode , @RequestBody QuizxelPlayer quizxelPlayer){
+    public SeshState joinAsHost( @PathVariable String seshCode , @RequestBody QuizxelPlayer quizxelPlayer){
         log.info("Started addCommand with seshCode={}, quizxelPlayer={}", seshCode, quizxelPlayer);
         Player player = modelMapper.map(quizxelPlayer, Player.class);
-        seshService.joinAsHost(seshCode, player.getPlayerId());
         log.info("Finished addCommand with seshCode={}, quizxelPlayer={}", seshCode, quizxelPlayer);
+
+        return seshService.joinAsHost(seshCode, player.getPlayerId());
     }
 }
