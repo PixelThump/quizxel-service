@@ -4,10 +4,12 @@ import lombok.Data;
 @Data
 public class Player{
 
-    private final String playerName;
+    private String playerName;
     private Boolean vip;
     private String playerId;
     private Long points;
+
+    public Player() {}
 
     public Player(String playerName, String playerid) {
 
