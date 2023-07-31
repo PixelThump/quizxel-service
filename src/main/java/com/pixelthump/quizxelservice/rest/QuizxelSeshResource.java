@@ -64,4 +64,13 @@ public class QuizxelSeshResource {
         seshService.joinAsController(seshCode, player);
         log.info("Finished addCommand with seshCode={}, quizxelPlayer={}", seshCode, quizxelPlayer);
     }
+
+    @PostMapping("/{seshCode}/players/host")
+    @ResponseBody
+    public void joinAsHost( @PathVariable String seshCode , @RequestBody QuizxelPlayer quizxelPlayer){
+        log.info("Started addCommand with seshCode={}, quizxelPlayer={}", seshCode, quizxelPlayer);
+        Player player = modelMapper.map(quizxelPlayer, Player.class);
+        seshService.joinAsHost(seshCode, player.getPlayerId());
+        log.info("Finished addCommand with seshCode={}, quizxelPlayer={}", seshCode, quizxelPlayer);
+    }
 }
