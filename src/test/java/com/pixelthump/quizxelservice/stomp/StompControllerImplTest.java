@@ -7,6 +7,7 @@ import com.pixelthump.quizxelservice.messaging.model.Command;
 import com.pixelthump.quizxelservice.messaging.model.message.*;
 import com.pixelthump.quizxelservice.service.SeshService;
 import com.pixelthump.quizxelservice.service.exception.NoSuchSeshException;
+import com.pixelthump.quizxelservice.sesh.model.Player;
 import com.pixelthump.quizxelservice.sesh.model.SeshState;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -72,7 +73,7 @@ class StompControllerImplTest {
     void joinSessionAsController_should_return_error_message_when_called_with_non_existent_session() {
 
         NoSuchSeshException exception = new NoSuchSeshException("No session with code " + seshCode + " exists");
-        when(seshServiceMock.joinAsController(seshCode, playerName, socketId)).thenThrow(exception);
+        when(seshServiceMock.joinAsController(seshCode, new Player(playerName, socketId))).thenThrow(exception);
 
         ErrorStompMessage expected = new ErrorStompMessage(exception.getMessage());
         when(factoryMock.getMessage(exception)).thenReturn(expected);
@@ -86,7 +87,7 @@ class StompControllerImplTest {
     void joinSessionAsController_should_return_state_message_when_called_with_existing_session() {
 
         SeshState state = new SeshState();
-        when(seshServiceMock.joinAsController(seshCode, playerName, socketId)).thenReturn(state);
+        when(seshServiceMock.joinAsController(seshCode, new Player(playerName, socketId))).thenReturn(state);
 
         StompMessage expected = new StateStompMessage(state);
         when(factoryMock.getMessage(any())).thenReturn(expected);
