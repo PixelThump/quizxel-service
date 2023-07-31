@@ -92,9 +92,19 @@
             <artifactId>mariadb-java-client</artifactId>
             <scope>runtime</scope>
         </dependency>
+         <dependency>
+            <groupId>com.github.ulisesbocchio</groupId>
+            <artifactId>jasypt-spring-boot</artifactId>
+            <version>3.0.5</version>
+        </dependency>
     </dependencies>
     <build>
         <plugins>
+         <plugin>
+                <groupId>com.github.ulisesbocchio</groupId>
+                <artifactId>jasypt-maven-plugin</artifactId>
+                <version>3.0.5</version>
+            </plugin>
             <plugin>
                 <groupId>org.asciidoctor</groupId>
                 <artifactId>asciidoctor-maven-plugin</artifactId>
