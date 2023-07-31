@@ -1,7 +1,10 @@
 package com.pixelthump.quizxelservice.rest;
+import com.pixelthump.quizxelservice.messaging.model.message.CommandStompMessage;
+import com.pixelthump.quizxelservice.rest.model.QuizxelPlayer;
 import com.pixelthump.quizxelservice.rest.model.QuizxelSeshInfo;
 import com.pixelthump.quizxelservice.service.SeshService;
 import com.pixelthump.quizxelservice.service.model.SeshInfo;
+import com.pixelthump.quizxelservice.sesh.model.Player;
 import lombok.extern.log4j.Log4j2;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -43,5 +46,22 @@ public class QuizxelSeshResource {
         log.info("Finished hostSesh with seshCode={}, result={}", seshCode, quizxelSesh);
 
         return quizxelSesh;
+    }
+
+    @PostMapping("/{seshCode}/commands")
+    @ResponseBody
+    public void addCommand( @PathVariable String seshCode , @RequestBody CommandStompMessage command){
+        log.info("Started addCommand with seshCode={}, command={}", seshCode, command);
+        seshService.sendCommandToSesh(command, seshCode);
+        log.info("Finished addCommand with seshCode={}, command={}", seshCode, command);
+    }
+
+    @PostMapping("/{seshCode}/players/controller")
+    @ResponseBody
+    public void joinAsController( @PathVariable String seshCode , @RequestBody QuizxelPlayer quizxelPlayer){
+        log.info("Started addCommand with seshCode={}, quizxelPlayer={}", seshCode, quizxelPlayer);
+        Player player = modelMapper.map(quizxelPlayer, Player.class);
+        seshService.joinAsController(seshCode, player);
+        log.info("Finished addCommand with seshCode={}, quizxelPlayer={}", seshCode, quizxelPlayer);
     }
 }

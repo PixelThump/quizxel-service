@@ -6,6 +6,7 @@ import com.pixelthump.quizxelservice.service.SeshService;
 import com.pixelthump.quizxelservice.service.exception.NoSuchSeshException;
 import com.pixelthump.quizxelservice.sesh.exception.PlayerAlreadyJoinedException;
 import com.pixelthump.quizxelservice.sesh.exception.PlayerNotInSeshException;
+import com.pixelthump.quizxelservice.sesh.model.Player;
 import com.pixelthump.quizxelservice.sesh.model.SeshState;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -35,7 +36,7 @@ public class SeshStompController {
         log.info("Started joinSeshAsController with playerName={} seshCode={}, socketId={}", playerName, seshCode, socketId);
 
         try {
-            SeshState state = seshService.joinAsController(seshCode, playerName, socketId);
+            SeshState state = seshService.joinAsController(seshCode, new Player(playerName,socketId));
             StompMessage reply = messageFactory.getMessage(state);
             log.info("Finished joinSeshAsController with playerName={}, seshCode={}, socketId={}, reply={}", playerName, seshCode, socketId, reply);
             return reply;
