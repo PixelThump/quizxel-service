@@ -1,84 +1,75 @@
 package com.pixelthump.quizxelservice.service;
-import com.pixelthump.quizxelservice.service.model.Command;
+import com.pixelthump.quizxelservice.repository.CommandRespository;
+import com.pixelthump.quizxelservice.repository.StateRepository;
+import com.pixelthump.quizxelservice.repository.model.command.Command;
+import com.pixelthump.quizxelservice.repository.model.CommandId;
+import com.pixelthump.quizxelservice.repository.model.State;
 import com.pixelthump.quizxelservice.service.model.SeshInfo;
-import com.pixelthump.quizxelservice.sesh.Sesh;
-import com.pixelthump.quizxelservice.sesh.model.Player;
-import com.pixelthump.quizxelservice.sesh.model.state.SeshState;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 import org.springframework.web.server.ResponseStatusException;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.Optional;
 
 @Component
 public class SeshServiceImpl implements SeshService {
 
-    private final Map<String, Sesh> seshs;
     private final SeshFactory seshFactory;
+    private final StateRepository stateRepository;
+    private final CommandRespository commandRespository;
 
-    public SeshServiceImpl(SeshFactory seshFactory) {
+    public SeshServiceImpl(SeshFactory seshFactory, StateRepository stateRepository,
+                           CommandRespository commandRespository) {
 
-        this.seshs = new HashMap<>();
         this.seshFactory = seshFactory;
+        this.stateRepository = stateRepository;
+        this.commandRespository = commandRespository;
     }
 
     @Override
     public SeshInfo getSeshInfo(String seshCode) {
 
-        Sesh sesh = getSesh(seshCode);
+        State sesh = getSesh(seshCode);
         return extractSeshInfo(sesh);
     }
 
     @Override
     public SeshInfo hostSesh(String seshCode) {
 
-        if (seshs.containsKey(seshCode)) {
+        if (stateRepository.existsBySeshCode(seshCode)) {
 
             String responseMessage = "Sesh with seshCode " + seshCode + " already exists";
             throw new ResponseStatusException(HttpStatus.CONFLICT, responseMessage);
         }
 
-        Sesh sesh = createSesh(seshCode);
-        saveSesh(seshCode, sesh);
+        State sesh = createSesh(seshCode);
+        stateRepository.save(sesh);
 
         return extractSeshInfo(sesh);
     }
 
     @Override
-    public SeshState joinAsController(String seshCode, Player player) {
-
-        final Sesh sesh = getSesh(seshCode);
-        return sesh.joinAsController(player.getPlayerName(), player.getPlayerId());
-    }
-
-    public SeshState joinAsHost(String seshCode, String socketId) {
-
-        final Sesh sesh = getSesh(seshCode);
-        return sesh.joinAsHost(socketId);
-    }
-
-    @Override
     public void sendCommandToSesh(Command command, String seshCode) {
 
-        final Sesh sesh = getSesh(seshCode);
-        sesh.addCommand(command);
+        final State sesh = getSesh(seshCode);
+        command.setCommandId(new CommandId(sesh));
+        commandRespository.save(command);
     }
 
-    private Sesh getSesh(String seshCode) {
+    public State getSesh(String seshCode) {
 
-        Sesh sesh = seshs.get(seshCode);
+        Optional<State> state = stateRepository.findBySeshCodeAndActive(seshCode, true);
 
-        if (sesh == null) {
+        if (state.isEmpty()) {
 
             String responseMessage = "Sesh with seshCode " + seshCode + " not found";
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, responseMessage);
         }
 
-        return sesh;
+        return state.get();
     }
 
-    private SeshInfo extractSeshInfo(Sesh sesh) {
+    private SeshInfo extractSeshInfo(State sesh) {
 
         SeshInfo seshInfo = new SeshInfo();
         seshInfo.setSeshCode(sesh.getSeshCode());
@@ -86,12 +77,7 @@ public class SeshServiceImpl implements SeshService {
         return seshInfo;
     }
 
-    private void saveSesh(String seshCode, Sesh sesh) {
-
-        seshs.put(seshCode, sesh);
-    }
-
-    private Sesh createSesh(String seshCode) {
+    private State createSesh(String seshCode) {
 
         return seshFactory.createSesh(seshCode);
     }

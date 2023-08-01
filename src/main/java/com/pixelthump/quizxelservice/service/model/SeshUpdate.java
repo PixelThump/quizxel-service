@@ -4,8 +4,9 @@ import lombok.Data;
 
 @Data
 @AllArgsConstructor
-public class Action<T> {
+public class SeshUpdate {
 
-    private String type;
-    private T body;
+    private StateWrapper host;
+    private StateWrapper controller;
+
 }

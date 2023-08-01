@@ -1,7 +1,7 @@
 package com.pixelthump.quizxelservice.service;
-import com.pixelthump.quizxelservice.sesh.Sesh;
+import com.pixelthump.quizxelservice.repository.model.State;
 
 public interface SeshFactory {
 
-    Sesh createSesh(String seshCode);
+    State createSesh(String seshCode);
 }

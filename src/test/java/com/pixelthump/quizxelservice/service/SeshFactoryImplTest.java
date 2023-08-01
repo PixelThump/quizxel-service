@@ -1,33 +1,48 @@
 package com.pixelthump.quizxelservice.service;
 import com.pixelthump.quizxelservice.Application;
-import com.pixelthump.quizxelservice.sesh.Sesh;
+import com.pixelthump.quizxelservice.repository.QuestionPackRepository;
+import com.pixelthump.quizxelservice.repository.model.Questionpack;
+import com.pixelthump.quizxelservice.repository.model.SeshStage;
+import com.pixelthump.quizxelservice.repository.model.State;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.context.ApplicationContext;
+
+import java.util.ArrayList;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
-
 @SpringBootTest(classes = Application.class)
 class SeshFactoryImplTest {
 
     @Autowired
-    SeshFactory seshfactory;
-    String seshCode = "ABCD";;
-
+    SeshFactory seshFactory;
     @MockBean
-    ApplicationContext applicationContext;
-    @Autowired
-    Sesh sesh;
+    QuestionPackRepository questionPackRepository;
 
     @Test
-    void CREATE_GAME_WHEN_SUPPORTED_GAME_WITH_SERVICE_SHOULD_RETURN_GAME() {
+    void createSesh_shouldCreateSeshStateWithCorrectBaseConfiguration() {
 
-        when(applicationContext.getBean(Sesh.class)).thenReturn(sesh);
-        Sesh result = seshfactory.createSesh(seshCode);
-        assertEquals(Sesh.class, result.getClass());
+        String seshCode = "ABCD";
+        State expected = new State();
+        expected.setSeshStage(SeshStage.LOBBY);
+        expected.setSeshCode(seshCode);
+        expected.setShowAnswer(false);
+        expected.setShowQuestion(false);
+        expected.setBuzzedPlayerId(null);
+        expected.setActive(true);
+        expected.setPlayers(new ArrayList<>());
+        expected.setCurrentQuestionIndex(0L);
+        expected.setHostId(null);
+        expected.setMaxPlayer(10L);
+        Questionpack questionpack = new Questionpack();
+        expected.setSelectedQuestionPack(questionpack);
+        when(questionPackRepository.findByPackName(any())).thenReturn(questionpack);
+
+        State result = seshFactory.createSesh(seshCode);
+
+        assertEquals(expected, result);
     }
-
 }
