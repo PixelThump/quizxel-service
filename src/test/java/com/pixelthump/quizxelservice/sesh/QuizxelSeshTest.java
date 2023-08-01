@@ -17,11 +17,14 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.client.RestTemplate;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Deque;
 import java.util.List;
+import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
@@ -38,6 +41,8 @@ class QuizxelSeshTest {
     StateManager stateManager;
     @MockBean
     PlayerManager playerManager;
+    @MockBean
+    RestTemplate restTemplate;
     String hostSocketId = "hostId";
     HostLobbyState hostLobbyState;
     String playerId = "playerId";
@@ -147,7 +152,7 @@ class QuizxelSeshTest {
     }
 
     @Test
-    void processQueue_noPlayersHaveJoined_shouldNotcallAnything(){
+    void processQueue_noPlayersHaveJoined_shouldNotcallAnything() {
 
         Deque<Command> unprocessedCommands = sesh.getUnprocessedCommands();
         unprocessedCommands.add(command);
@@ -160,18 +165,18 @@ class QuizxelSeshTest {
     }
 
     @Test
-    void processQueue_shouldClearCommandsAndProcessCommandsAndBroadcastState(){
+    void processQueue_shouldClearCommandsAndProcessCommandsAndBroadcastState() {
 
         sesh.start(SESH_CODE);
         Deque<Command> unprocessedCommands = sesh.getUnprocessedCommands();
         unprocessedCommands.add(command);
         List<Player> playerList = new ArrayList<>();
-        playerList.add(new Player(playerName,playerId));
+        playerList.add(new Player(playerName, playerId));
         when(playerManager.getPlayers()).thenReturn(playerList);
         when(playerManager.hasHostJoined()).thenReturn(true);
         when(stateManager.getControllerState()).thenReturn(playerLobbyState);
         when(stateManager.getHostState()).thenReturn(hostLobbyState);
-
+        when(restTemplate.postForEntity(any(), any(), eq(String.class))).thenReturn(ResponseEntity.of(Optional.of("")));
         sesh.processQueue();
 
         assertTrue(unprocessedCommands.isEmpty());
@@ -180,7 +185,7 @@ class QuizxelSeshTest {
         verify(broadcaster).broadcastSeshUpdateToControllers(SESH_CODE, playerLobbyState);
     }
 
-    boolean lastInteractionTimeIsAboutNow(){
+    boolean lastInteractionTimeIsAboutNow() {
 
         return sesh.getLastInteractionTime().isAfter(LocalDateTime.now().minusSeconds(1)) && sesh.getLastInteractionTime().isBefore(LocalDateTime.now().plusSeconds(1));
     }
