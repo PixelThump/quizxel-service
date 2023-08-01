@@ -3,7 +3,7 @@ import com.pixelthump.quizxelservice.service.model.Command;
 import com.pixelthump.quizxelservice.service.model.SeshInfo;
 import com.pixelthump.quizxelservice.sesh.Sesh;
 import com.pixelthump.quizxelservice.sesh.model.Player;
-import com.pixelthump.quizxelservice.sesh.model.SeshState;
+import com.pixelthump.quizxelservice.sesh.model.state.SeshState;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 import org.springframework.web.server.ResponseStatusException;

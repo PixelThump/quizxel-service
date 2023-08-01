@@ -4,7 +4,7 @@ import com.pixelthump.quizxelservice.service.model.Action;
 import com.pixelthump.quizxelservice.service.model.Command;
 import com.pixelthump.quizxelservice.sesh.model.Player;
 import com.pixelthump.quizxelservice.sesh.model.SeshStage;
-import com.pixelthump.quizxelservice.sesh.model.SeshState;
+import com.pixelthump.quizxelservice.sesh.model.state.SeshState;
 import com.pixelthump.quizxelservice.sesh.model.state.controller.ControllerLobbyState;
 import com.pixelthump.quizxelservice.sesh.model.state.host.HostLobbyState;
 import com.pixelthump.quizxelservice.sesh.model.state.host.HostMainStageState;

@@ -6,7 +6,7 @@ import com.pixelthump.quizxelservice.rest.model.QuizxelStateWrapper;
 import com.pixelthump.quizxelservice.service.SeshService;
 import com.pixelthump.quizxelservice.service.model.SeshInfo;
 import com.pixelthump.quizxelservice.sesh.model.Player;
-import com.pixelthump.quizxelservice.sesh.model.SeshState;
+import com.pixelthump.quizxelservice.sesh.model.state.SeshState;
 import lombok.extern.log4j.Log4j2;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;

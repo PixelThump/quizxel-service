@@ -1,4 +1,6 @@
-package com.pixelthump.quizxelservice.sesh.model;
+package com.pixelthump.quizxelservice.sesh.model.state;
+import com.pixelthump.quizxelservice.sesh.model.Player;
+import com.pixelthump.quizxelservice.sesh.model.SeshStage;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;

@@ -4,7 +4,7 @@ import com.pixelthump.quizxelservice.service.model.Action;
 import com.pixelthump.quizxelservice.service.model.Command;
 import com.pixelthump.quizxelservice.service.model.SeshInfo;
 import com.pixelthump.quizxelservice.sesh.Sesh;
-import com.pixelthump.quizxelservice.sesh.model.SeshState;
+import com.pixelthump.quizxelservice.sesh.model.state.SeshState;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;

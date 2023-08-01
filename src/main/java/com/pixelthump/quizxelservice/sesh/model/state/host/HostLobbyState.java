@@ -1,5 +1,5 @@
 package com.pixelthump.quizxelservice.sesh.model.state.host;
-import com.pixelthump.quizxelservice.sesh.model.SeshState;
+import com.pixelthump.quizxelservice.sesh.model.state.SeshState;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 

@@ -1,6 +1,7 @@
 package com.pixelthump.quizxelservice.sesh;
 import com.pixelthump.quizxelservice.service.model.Command;
-import com.pixelthump.quizxelservice.sesh.model.SeshState;
+import com.pixelthump.quizxelservice.sesh.model.StateWrapper;
+import com.pixelthump.quizxelservice.sesh.model.state.SeshState;
 import com.pixelthump.quizxelservice.sesh.model.SeshUpdate;
 import lombok.Getter;
 import org.springframework.beans.factory.annotation.Value;
@@ -59,7 +60,7 @@ public class Sesh {
         }
         this.lastInteractionTime = LocalDateTime.now();
 
-        return getHostState();
+        return getHostState().getSeshState();
     }
 
     public SeshState joinAsController(String playerName, String socketId) {
@@ -81,7 +82,7 @@ public class Sesh {
 
         this.lastInteractionTime = LocalDateTime.now();
 
-        return this.getControllerState();
+        return this.getControllerState().getSeshState();
     }
 
     public void addCommand(Command command) {
@@ -114,14 +115,16 @@ public class Sesh {
         broadcastState();
     }
 
-    private SeshState getHostState() {
+    private StateWrapper getHostState() {
 
-        return stateManager.getHostState();
+        SeshState state = stateManager.getHostState();
+        return new StateWrapper(state);
     }
 
-    private SeshState getControllerState() {
+    private StateWrapper getControllerState() {
 
-        return stateManager.getControllerState();
+        SeshState state = stateManager.getControllerState();
+        return new StateWrapper(state);
     }
 
     private void broadcastState() {
