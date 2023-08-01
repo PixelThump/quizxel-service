@@ -1,5 +1,5 @@
 package com.pixelthump.quizxelservice.service;
-import com.pixelthump.quizxelservice.service.model.SeshUpdate;
+import com.pixelthump.quizxelservice.service.model.messaging.SeshUpdate;
 
 public interface BroadcastService {
 

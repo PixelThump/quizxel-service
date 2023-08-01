@@ -13,7 +13,7 @@ public class Command {
 
     @EmbeddedId
     private CommandId commandId;
-    private String playerid;
+    private String playerId;
     private String type;
     private String body;
 }

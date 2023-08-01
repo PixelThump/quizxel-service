@@ -1,7 +1,6 @@
 package com.pixelthump.quizxelservice.rest.model;
 import lombok.Data;
 
-
 @Data
 public class QuizxelSeshInfo {
 

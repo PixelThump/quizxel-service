@@ -1,24 +1,26 @@
 package com.pixelthump.quizxelservice.rest;
 import com.pixelthump.quizxelservice.repository.model.Player;
 import com.pixelthump.quizxelservice.repository.model.command.Command;
-import com.pixelthump.quizxelservice.rest.model.QuizxelCommandWrapper;
+import com.pixelthump.quizxelservice.rest.model.QuizxelCommand;
 import com.pixelthump.quizxelservice.rest.model.QuizxelPlayer;
 import com.pixelthump.quizxelservice.rest.model.QuizxelSeshInfo;
-import com.pixelthump.quizxelservice.rest.model.QuizxelStateWrapper;
+import com.pixelthump.quizxelservice.rest.model.state.QuizxelControllerState;
+import com.pixelthump.quizxelservice.rest.model.state.QuizxelHostState;
 import com.pixelthump.quizxelservice.service.GameLogicService;
 import com.pixelthump.quizxelservice.service.SeshService;
 import com.pixelthump.quizxelservice.service.model.SeshInfo;
+import com.pixelthump.quizxelservice.service.model.state.ControllerState;
+import com.pixelthump.quizxelservice.service.model.state.HostState;
 import lombok.extern.log4j.Log4j2;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.Map;
-
 @RestController
 @RequestMapping("/seshs")
 @Log4j2
 public class QuizxelSeshResource {
+
     private final SeshService seshService;
     private final GameLogicService gameLogicService;
     private final ModelMapper modelMapper;
@@ -45,7 +47,7 @@ public class QuizxelSeshResource {
 
     @PostMapping
     @ResponseBody
-    public QuizxelSeshInfo hostSesh(@RequestBody String seshCode){
+    public QuizxelSeshInfo hostSesh(@RequestBody String seshCode) {
 
         log.info("Started hostSesh with seshCode={}", seshCode);
         SeshInfo sesh = seshService.hostSesh(seshCode);
@@ -57,32 +59,37 @@ public class QuizxelSeshResource {
 
     @PostMapping("/{seshCode}/commands")
     @ResponseBody
-    public void addCommand( @PathVariable String seshCode , @RequestBody QuizxelCommandWrapper commandWrapper){
-        log.info("Started addCommand with seshCode={}, command={}", seshCode, commandWrapper);
-        Command command = modelMapper.map(commandWrapper.getCommand(), Command.class);
+    public void addCommand(@PathVariable String seshCode, @RequestBody QuizxelCommand quizxelCommand) {
+
+        log.info("Started addCommand with seshCode={}, command={}", seshCode, quizxelCommand);
+        Command command = modelMapper.map(quizxelCommand, Command.class);
         seshService.sendCommandToSesh(command, seshCode);
-        log.info("Finished addCommand with seshCode={}, command={}", seshCode, commandWrapper);
+        log.info("Finished addCommand with seshCode={}, command={}", seshCode, quizxelCommand);
     }
 
     @PostMapping("/{seshCode}/players/controller")
     @ResponseBody
-    public QuizxelStateWrapper joinAsController(@PathVariable String seshCode , @RequestBody QuizxelPlayer quizxelPlayer){
+    public QuizxelControllerState joinAsController(@PathVariable String seshCode, @RequestBody QuizxelPlayer quizxelPlayer) {
+
         log.info("Started joinAsController with seshCode={}, quizxelPlayer={}", seshCode, quizxelPlayer);
         Player player = modelMapper.map(quizxelPlayer, Player.class);
-        Map<String, Object> state = gameLogicService.joinAsController(seshCode, player);
+        ControllerState state = gameLogicService.joinAsController(seshCode, player);
+        QuizxelControllerState controllerState = modelMapper.map(state, QuizxelControllerState.class);
         log.info("Finished joinAsController with seshCode={}, quizxelPlayer={}", seshCode, quizxelPlayer);
 
-        return new QuizxelStateWrapper(state);
+        return controllerState;
     }
 
     @PostMapping("/{seshCode}/players/host")
     @ResponseBody
-    public QuizxelStateWrapper joinAsHost(@PathVariable String seshCode , @RequestBody QuizxelPlayer quizxelPlayer){
+    public QuizxelHostState joinAsHost(@PathVariable String seshCode, @RequestBody QuizxelPlayer quizxelPlayer) {
+
         log.info("Started joinAsHost with seshCode={}, quizxelPlayer={}", seshCode, quizxelPlayer);
         Player player = modelMapper.map(quizxelPlayer, Player.class);
-        Map<String, Object> state = gameLogicService.joinAsHost(seshCode, player.getId());
+        HostState state = gameLogicService.joinAsHost(seshCode, player.getId());
+        QuizxelHostState hostState = modelMapper.map(state, QuizxelHostState.class);
         log.info("Finished joinAsHost with seshCode={}, quizxelPlayer={}", seshCode, quizxelPlayer);
 
-        return new QuizxelStateWrapper(state);
+        return hostState;
     }
 }

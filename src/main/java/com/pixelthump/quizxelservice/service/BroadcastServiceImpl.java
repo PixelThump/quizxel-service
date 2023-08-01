@@ -1,25 +1,85 @@
 package com.pixelthump.quizxelservice.service;
-import com.pixelthump.quizxelservice.service.model.SeshUpdate;
+import com.pixelthump.quizxelservice.service.model.messaging.MessagingPlayer;
+import com.pixelthump.quizxelservice.service.model.messaging.MessagingSeshUpdate;
+import com.pixelthump.quizxelservice.service.model.messaging.SeshUpdate;
+import com.pixelthump.quizxelservice.service.model.state.ControllerState;
+import com.pixelthump.quizxelservice.service.model.state.HostState;
 import lombok.extern.log4j.Log4j2;
+import org.modelmapper.ModelMapper;
+import org.modelmapper.TypeToken;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
 
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 @Component
 @Log4j2
-public class BroadcastServiceImpl implements BroadcastService{
+public class BroadcastServiceImpl implements BroadcastService {
 
-    @Autowired
-    private RestTemplate restTemplate;
-
+    private final RestTemplate restTemplate;
+    private final ModelMapper modelMapper;
     @Value("${pixelthump.backend-basepath}")
     private String backendBasePath;
+
+    @Autowired
+    public BroadcastServiceImpl(RestTemplate restTemplate, ModelMapper modelMapper) {
+
+        this.restTemplate = restTemplate;
+        this.modelMapper = modelMapper;
+    }
+
     @Override
     public void broadcastSeshUpdate(SeshUpdate seshUpdate, String seshCode) {
 
         log.debug("Broadcasting to {} with {}", seshCode, seshCode);
+
+
+        Map<String, Object> host = getHostMap(seshUpdate.getHost());
+        Map<String, Object> controller = getControllerMap(seshUpdate.getController());
+        MessagingSeshUpdate messagingSeshUpdate = new MessagingSeshUpdate(host, controller);
+
         String apiUrl = backendBasePath + "/messaging/seshs/" + seshCode + "/broadcasts";
-        restTemplate.postForEntity(apiUrl, seshUpdate, String.class);
+        restTemplate.postForEntity(apiUrl, messagingSeshUpdate, String.class);
     }
+
+    private Map<String, Object> getControllerMap(ControllerState controllerState) {
+
+        Map<String, Object> controller = new HashMap<>();
+        // @formatter:off
+        List<MessagingPlayer> hostPlayers = modelMapper.map(controllerState.getPlayers(), new TypeToken<List<MessagingPlayer>>() {}.getType());
+        // @formatter:on
+        controller.put("players", hostPlayers);
+        controller.put("seshCode", controllerState.getSeshCode());
+        controller.put("currentStage", controllerState.getCurrentStage());
+        controller.put("maxPlayers", controllerState.getMaxPlayers());
+        controller.put("hasVip", controllerState.getHasVip());
+        controller.put("currentQuestion", controllerState.getCurrentQuestion());
+        controller.put("showQuestion", controllerState.getShowQuestion());
+        controller.put("showAnswer", controllerState.getShowAnswer());
+        controller.put("buzzedPlayerId", controllerState.getBuzzedPlayerId());
+        return controller;
+    }
+
+    private Map<String, Object> getHostMap(HostState hostState) {
+
+        Map<String, Object> host = new HashMap<>();
+        // @formatter:off
+        List<MessagingPlayer> hostPlayers = modelMapper.map(hostState.getPlayers(), new TypeToken<List<MessagingPlayer>>() {}.getType());
+        // @formatter:on
+        host.put("players", hostPlayers);
+        host.put("seshCode", hostState.getSeshCode());
+        host.put("currentStage", hostState.getCurrentStage());
+        host.put("maxPlayers", hostState.getMaxPlayers());
+        host.put("hasVip", hostState.getHasVip());
+        host.put("currentQuestion", hostState.getCurrentQuestion());
+        host.put("showQuestion", hostState.getShowQuestion());
+        host.put("showAnswer", hostState.getShowAnswer());
+        host.put("buzzedPlayerId", hostState.getBuzzedPlayerId());
+        return host;
+    }
+
 }

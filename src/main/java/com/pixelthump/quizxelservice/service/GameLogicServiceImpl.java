@@ -1,40 +1,42 @@
 package com.pixelthump.quizxelservice.service;
 import com.pixelthump.quizxelservice.repository.CommandRespository;
+import com.pixelthump.quizxelservice.repository.PlayerRepository;
 import com.pixelthump.quizxelservice.repository.StateRepository;
 import com.pixelthump.quizxelservice.repository.model.Player;
 import com.pixelthump.quizxelservice.repository.model.SeshStage;
 import com.pixelthump.quizxelservice.repository.model.State;
 import com.pixelthump.quizxelservice.repository.model.command.Command;
-import com.pixelthump.quizxelservice.service.model.SeshUpdate;
-import com.pixelthump.quizxelservice.service.model.StateWrapper;
+import com.pixelthump.quizxelservice.service.model.messaging.SeshUpdate;
+import com.pixelthump.quizxelservice.service.model.state.ControllerState;
+import com.pixelthump.quizxelservice.service.model.state.HostState;
 import lombok.extern.log4j.Log4j2;
+import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 import org.springframework.web.server.ResponseStatusException;
 
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 @Component
 @Log4j2
 public class GameLogicServiceImpl implements GameLogicService {
 
+    private final PlayerRepository playerRepository;
     private final StateRepository stateRepository;
     private final CommandRespository commandRespository;
-
     private final BroadcastService broadcastService;
     private final SeshService seshService;
 
     @Autowired
-    public GameLogicServiceImpl(StateRepository stateRepository, CommandRespository commandRespository, BroadcastService broadcastService, SeshService seshService) {
+    public GameLogicServiceImpl(StateRepository stateRepository, CommandRespository commandRespository, BroadcastService broadcastService, SeshService seshService, PlayerRepository playerRepository) {
 
         this.stateRepository = stateRepository;
         this.commandRespository = commandRespository;
         this.broadcastService = broadcastService;
         this.seshService = seshService;
+        this.playerRepository = playerRepository;
     }
 
     @Scheduled(fixedDelayString = "${quizxel.tickrate}", initialDelayString = "${quizxel.tickrate}")
@@ -60,7 +62,7 @@ public class GameLogicServiceImpl implements GameLogicService {
                 processCommand(state, command);
                 commandRespository.deleteByCommandId(command.getCommandId());
             } catch (Exception e) {
-
+                commandRespository.deleteByCommandId(command.getCommandId());
                 log.warn("Unable to process command={}", command);
             }
         }
@@ -88,13 +90,13 @@ public class GameLogicServiceImpl implements GameLogicService {
 
     private State processLobbyStageCommand(State state, Command command) {
 
-        if (isVip(state, command.getPlayerid()) && command.getType().equals("startSesh")) {
+        if (isVip(state, command.getPlayerId()) && command.getType().equals("startSesh")) {
 
             return processStartSeshCommand(state);
 
-        } else if ((isVip(state, command.getPlayerid()) || !hasVip(state)) && command.getType().equals("makeVip")) {
+        } else if ((isVip(state, command.getPlayerId()) || !hasVip(state)) && command.getType().equals("makeVip")) {
 
-            return processMakeVipCommand(state, command.getPlayerid(), command.getBody());
+            return processMakeVipCommand(state, command.getPlayerId(), command.getBody());
 
         } else {
 
@@ -137,7 +139,7 @@ public class GameLogicServiceImpl implements GameLogicService {
 
     private void processNextQuestionCommand(State state, Command command) {
 
-        if (!isVip(state, command.getPlayerid())) return;
+        if (!isVip(state, command.getPlayerId())) return;
         if ("next".equals(command.getBody())) state.nextQuestion();
         if ("prev".equals(command.getBody())) state.prevQuestion();
 
@@ -147,23 +149,23 @@ public class GameLogicServiceImpl implements GameLogicService {
 
     private void processShowQuestionCommand(State state, Command command) {
 
-        if (!isVip(state, command.getPlayerid())) return;
-       boolean showQuestion = command.getBody().equals("true");
+        if (!isVip(state, command.getPlayerId())) return;
+        boolean showQuestion = command.getBody().equals("true");
         state.setShowQuestion(showQuestion);
     }
 
     private void processShowAnswerCommand(State state, Command command) {
 
-        if (!isVip(state, command.getPlayerid())) return;
+        if (!isVip(state, command.getPlayerId())) return;
         boolean showQuestion = command.getBody().equals("true");
         state.setShowAnswer(showQuestion);
     }
 
     private void processBuzzerCommand(State state, Command command) {
 
-        if (!isVip(state, command.getPlayerid()) && state.getBuzzedPlayerId() != null) return;
-        if (!isVip(state, command.getPlayerid())) state.setBuzzedPlayerId(command.getPlayerid());
-        if (isVip(state, command.getPlayerid())) state.setBuzzedPlayerId(command.getBody());
+        if (!isVip(state, command.getPlayerId()) && state.getBuzzedPlayerId() != null) return;
+        if (!isVip(state, command.getPlayerId())) state.setBuzzedPlayerId(command.getPlayerId());
+        if (isVip(state, command.getPlayerId())) state.setBuzzedPlayerId(command.getBody());
     }
 
     private static boolean hasVip(State state) {
@@ -178,65 +180,69 @@ public class GameLogicServiceImpl implements GameLogicService {
 
     private void broadcastState(State state) {
 
-        StateWrapper host = extractHostState(state);
-        StateWrapper controller = extractControllerState(state);
+        HostState host = extractHostState(state);
+        ControllerState controller = extractControllerState(state);
         SeshUpdate seshUpdate = new SeshUpdate(host, controller);
         broadcastService.broadcastSeshUpdate(seshUpdate, state.getSeshCode());
     }
 
-    private StateWrapper extractControllerState(State state) {
+    private ControllerState extractControllerState(State state) {
 
-        return extractHostState(state);
+        HostState hostState = extractHostState(state);
+        ModelMapper modelMapper = new ModelMapper();
+        return modelMapper.map(hostState, ControllerState.class);
     }
 
-    private StateWrapper extractHostState(State state) {
+    private HostState extractHostState(State state) {
 
-        Map<String, Object> hostState = new HashMap<>();
-        hostState.put("players", state.getPlayers());
-        hostState.put("seshCode", state.getSeshCode());
-        hostState.put("currentStage", state.getSeshStage());
+        HostState hostState = new HostState();
+        hostState.setPlayers(state.getPlayers());
+        hostState.setSeshCode(state.getSeshCode());
+        hostState.setCurrentStage(state.getSeshStage());
 
         if (state.getSeshStage() == SeshStage.LOBBY) {
 
-            hostState.put("maxPlayers", state.getMaxPlayer());
-            hostState.put("hasVip", hasVip(state));
+            hostState.setMaxPlayers(state.getMaxPlayer());
+            hostState.setHasVip(hasVip(state));
 
         } else if (state.getSeshStage() == SeshStage.MAIN) {
 
-            hostState.put("currentQuestion", state.getSelectedQuestionPack().getQuestions().get(state.getCurrentQuestionIndex().intValue()));
-            hostState.put("showQuestion", state.getShowQuestion());
-            hostState.put("showAnswer", state.getShowAnswer());
-            hostState.put("buzzedPlayerId", state.getBuzzedPlayerId());
+            hostState.setCurrentQuestion(state.getSelectedQuestionPack().getQuestions().get(state.getCurrentQuestionIndex().intValue()));
+            hostState.setShowQuestion(state.getShowQuestion());
+            hostState.setShowAnswer(state.getShowAnswer());
+            hostState.setBuzzedPlayerId(state.getBuzzedPlayerId());
         }
 
-        return new StateWrapper(hostState);
+        return hostState;
     }
 
     @Override
-    public Map<String, Object> joinAsController(String seshCode, Player player) {
+    public ControllerState joinAsController(String seshCode, Player player) {
 
         State state = seshService.getSesh(seshCode);
-        if (state.getPlayers().size()== state.getMaxPlayer()){
+        if (state.getPlayers().size() == state.getMaxPlayer()) {
 
             throw new ResponseStatusException(HttpStatus.CONFLICT);
         }
 
+        player.setState(state);
+        playerRepository.save(player);
         state.getPlayers().add(player);
         stateRepository.save(state);
-        return extractControllerState(state).getState();
+        return extractControllerState(state);
     }
 
     @Override
-    public Map<String, Object> joinAsHost(String seshCode, String socketId) {
+    public HostState joinAsHost(String seshCode, String socketId) {
 
         State state = seshService.getSesh(seshCode);
-        if (state.getHostId()!= null){
+        if (state.getHostId() != null) {
 
             throw new ResponseStatusException(HttpStatus.CONFLICT);
         }
 
         state.setHostId(socketId);
         stateRepository.save(state);
-        return extractHostState(state).getState();
+        return extractHostState(state);
     }
 }

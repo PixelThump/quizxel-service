@@ -1,12 +1,11 @@
-package com.pixelthump.quizxelservice.rest.model;
+package com.pixelthump.quizxelservice.service.model.messaging;
 import lombok.Data;
 
 @Data
-public class QuizxelPlayer {
+public class MessagingPlayer {
 
     private String id;
     private String playerName;
     private Boolean vip;
     private Long points;
-
 }

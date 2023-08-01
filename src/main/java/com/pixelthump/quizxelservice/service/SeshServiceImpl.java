@@ -5,6 +5,7 @@ import com.pixelthump.quizxelservice.repository.model.command.Command;
 import com.pixelthump.quizxelservice.repository.model.CommandId;
 import com.pixelthump.quizxelservice.repository.model.State;
 import com.pixelthump.quizxelservice.service.model.SeshInfo;
+import jakarta.transaction.Transactional;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 import org.springframework.web.server.ResponseStatusException;
@@ -34,6 +35,7 @@ public class SeshServiceImpl implements SeshService {
     }
 
     @Override
+    @Transactional
     public SeshInfo hostSesh(String seshCode) {
 
         if (stateRepository.existsBySeshCode(seshCode)) {
@@ -49,6 +51,7 @@ public class SeshServiceImpl implements SeshService {
     }
 
     @Override
+    @Transactional
     public void sendCommandToSesh(Command command, String seshCode) {
 
         final State sesh = getSesh(seshCode);

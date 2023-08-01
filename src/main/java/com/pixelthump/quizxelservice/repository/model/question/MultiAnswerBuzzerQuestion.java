@@ -17,7 +17,7 @@ public class MultiAnswerBuzzerQuestion extends Question{
     @ElementCollection
     @Column(name = "answer")
     @CollectionTable(name = "multi_answer_buzzer_question_answers", joinColumns = @JoinColumn(name = "multi_answer_buzzer_question_id"))
-    private List<String> answers = new ArrayList<>();
+    private List<String> answer = new ArrayList<>();
 
     @Override
     public boolean equals(Object o) {

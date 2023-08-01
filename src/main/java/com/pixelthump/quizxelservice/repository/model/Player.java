@@ -22,6 +22,6 @@ public class Player implements Serializable {
     private Long points;
     @ManyToOne(cascade = CascadeType.ALL, optional = false)
     @JoinColumn(name = "sesh_code", nullable = false)
-    private State seshCode;
+    private State state;
 
 }

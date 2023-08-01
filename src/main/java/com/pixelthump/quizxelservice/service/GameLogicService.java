@@ -1,13 +1,13 @@
 package com.pixelthump.quizxelservice.service;
 import com.pixelthump.quizxelservice.repository.model.Player;
-
-import java.util.Map;
+import com.pixelthump.quizxelservice.service.model.state.ControllerState;
+import com.pixelthump.quizxelservice.service.model.state.HostState;
 
 public interface GameLogicService {
 
-    Map<String, Object> joinAsController(String seshCode, Player player);
+    ControllerState joinAsController(String seshCode, Player player);
 
-    Map<String, Object> joinAsHost(String seshCode, String socketId);
+    HostState joinAsHost(String seshCode, String socketId);
 
     void processQueues();
 }

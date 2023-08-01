@@ -27,6 +27,7 @@ public abstract class Question implements Serializable {
     @JoinColumn(name = "questionpack_id")
     private Questionpack questionpack;
 
+
     @Override
     public boolean equals(Object o) {
 
