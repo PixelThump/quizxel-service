@@ -1,19 +1,24 @@
 package com.pixelthump.quizxelservice.sesh;
 import com.pixelthump.quizxelservice.messaging.MessageBroadcaster;
 import com.pixelthump.quizxelservice.messaging.model.Command;
+import com.pixelthump.quizxelservice.messaging.model.message.StateStompMessage;
 import com.pixelthump.quizxelservice.sesh.exception.PlayerAlreadyJoinedException;
 import com.pixelthump.quizxelservice.sesh.exception.PlayerNotInSeshException;
 import com.pixelthump.quizxelservice.sesh.exception.SeshCurrentlyNotJoinableException;
 import com.pixelthump.quizxelservice.sesh.exception.SeshIsFullException;
 import com.pixelthump.quizxelservice.sesh.model.SeshState;
 import lombok.Getter;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Scope;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
+import org.springframework.web.client.RestTemplate;
 
 import java.time.LocalDateTime;
 import java.util.Deque;
+import java.util.HashMap;
 import java.util.LinkedList;
+import java.util.Map;
 
 @Component
 @Scope("prototype")
@@ -29,9 +34,14 @@ public class Sesh {
     @Getter
     private final Deque<Command> unprocessedCommands;
 
-    public Sesh(StateManager stateManager, MessageBroadcaster broadcaster, PlayerManager playerManager) {
+    private final RestTemplate restTemplate;
+@Value("${pixelthump.backend-basepath}")
+    private String backendBasePath;
+
+    public Sesh(StateManager stateManager, MessageBroadcaster broadcaster, PlayerManager playerManager, RestTemplate restTemplate) {
 
         this.stateManager = stateManager;
+        this.restTemplate = restTemplate;
         stateManager.setPlayerManager(playerManager);
         this.broadcaster = broadcaster;
         this.playerManager = playerManager;
@@ -124,6 +134,11 @@ public class Sesh {
 
     private void broadcastState() {
 
+        String apiUrl = backendBasePath + "/messaging/seshs/" + seshCode + "/broadcasts";
+        Map<String, StateStompMessage> seshUpdate = new HashMap<>();
+        seshUpdate.put("host", new StateStompMessage(getHostState()));
+        seshUpdate.put("controller", new StateStompMessage(getControllerState()));
+        restTemplate.postForEntity(apiUrl,seshUpdate, String.class);
         broadcastToHost(stateManager.getHostState());
         broadcastToAllControllers(stateManager.getControllerState());
     }
