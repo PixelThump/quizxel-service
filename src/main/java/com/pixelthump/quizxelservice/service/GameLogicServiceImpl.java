@@ -37,7 +37,7 @@ public class GameLogicServiceImpl implements GameLogicService {
         this.seshService = seshService;
     }
 
-    @Scheduled(fixedRateString = "${quizxel.tickrate}", initialDelayString = "${quizxel.tickrate}")
+    @Scheduled(fixedDelayString = "${quizxel.tickrate}", initialDelayString = "${quizxel.tickrate}")
     public void processQueues() {
 
         List<State> states = stateRepository.findByActive(true);
@@ -222,6 +222,7 @@ public class GameLogicServiceImpl implements GameLogicService {
         }
 
         state.getPlayers().add(player);
+        stateRepository.save(state);
         return extractControllerState(state).getState();
     }
 
@@ -235,6 +236,7 @@ public class GameLogicServiceImpl implements GameLogicService {
         }
 
         state.setHostId(socketId);
+        stateRepository.save(state);
         return extractHostState(state).getState();
     }
 }
