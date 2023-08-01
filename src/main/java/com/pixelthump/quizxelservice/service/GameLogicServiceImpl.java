@@ -113,13 +113,13 @@ public class GameLogicServiceImpl implements GameLogicService {
 
     private State processMakeVipCommand(State state, String executerId, String targetId) {
 
-        boolean targetIsValid = state.getPlayers().stream().anyMatch(player -> player.getId().equals(targetId));
+        boolean targetIsValid = state.getPlayers().stream().anyMatch(player -> player.getPlayerId().equals(targetId));
         if (!targetIsValid) {
 
             return state;
         }
-        state.getPlayers().stream().filter(player -> !player.getId().equals(executerId)).forEach(player -> player.setVip(false));
-        state.getPlayers().stream().filter(player -> !player.getId().equals(targetId)).forEach(player -> player.setVip(true));
+        state.getPlayers().stream().filter(player -> !player.getPlayerId().equals(executerId)).forEach(player -> player.setVip(false));
+        state.getPlayers().stream().filter(player -> !player.getPlayerId().equals(targetId)).forEach(player -> player.setVip(true));
         return state;
     }
 
@@ -220,12 +220,16 @@ public class GameLogicServiceImpl implements GameLogicService {
     public ControllerState joinAsController(String seshCode, Player player) {
 
         State state = seshService.getSesh(seshCode);
-        if (state.getPlayers().size() == state.getMaxPlayer()) {
+        boolean seshIsFull = state.getPlayers().size() == state.getMaxPlayer();
+        boolean playerAlreadyJoined = playerRepository.existsByState_SeshCodeAndPlayerName(seshCode, player.getPlayerName());
+        if (seshIsFull || playerAlreadyJoined) {
 
             throw new ResponseStatusException(HttpStatus.CONFLICT);
         }
 
         player.setState(state);
+        player.setVip(false);
+        player.setPoints(0L);
         playerRepository.save(player);
         state.getPlayers().add(player);
         stateRepository.save(state);

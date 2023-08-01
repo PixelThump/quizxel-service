@@ -13,7 +13,7 @@ public class Player implements Serializable {
 
     @Id
     @Column(name = "id", nullable = false)
-    private String id;
+    private String playerId;
     @Column(name = "player_name", nullable = false)
     private String playerName;
     @Column(name = "vip", nullable = false)

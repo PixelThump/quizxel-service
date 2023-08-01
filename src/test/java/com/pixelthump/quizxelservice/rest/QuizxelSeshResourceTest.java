@@ -1,9 +1,15 @@
 package com.pixelthump.quizxelservice.rest;
 import com.pixelthump.quizxelservice.Application;
-import com.pixelthump.quizxelservice.rest.model.*;
+import com.pixelthump.quizxelservice.rest.model.QuizxelCommand;
+import com.pixelthump.quizxelservice.rest.model.QuizxelPlayer;
+import com.pixelthump.quizxelservice.rest.model.QuizxelSeshInfo;
+import com.pixelthump.quizxelservice.rest.model.state.QuizxelControllerState;
+import com.pixelthump.quizxelservice.rest.model.state.QuizxelHostState;
 import com.pixelthump.quizxelservice.service.GameLogicService;
 import com.pixelthump.quizxelservice.service.SeshService;
 import com.pixelthump.quizxelservice.service.model.SeshInfo;
+import com.pixelthump.quizxelservice.service.model.state.ControllerState;
+import com.pixelthump.quizxelservice.service.model.state.HostState;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,9 +18,6 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.web.server.ResponseStatusException;
-
-import java.util.HashMap;
-import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
@@ -107,30 +110,27 @@ class QuizxelSeshResourceTest {
     void addCommand_existingSesh_shouldCallSeshService() {
 
         QuizxelCommand command = new QuizxelCommand("abcd", "buzzer", "abcd");
-        QuizxelCommandWrapper commandWrapper = new QuizxelCommandWrapper(command);
-        seshResource.addCommand(existingSeshCode, commandWrapper);
+        seshResource.addCommand(existingSeshCode, command);
         verify(seshService, times(1)).sendCommandToSesh(any(), eq(existingSeshCode));
     }
 
     @Test
     void joinAsController_existingSesh_shouldCallGameLogicServiceAndReturnState() {
 
-        Map<String, Object> state = new HashMap<>();
-        state.put("seshCode", existingSeshCode);
+        ControllerState state = new ControllerState();
         when(gameLogicService.joinAsController(eq(existingSeshCode), any())).thenReturn(state);
-        QuizxelStateWrapper result = seshResource.joinAsController(existingSeshCode, new QuizxelPlayer("abcd", "abcd"));
-        QuizxelStateWrapper expected = new QuizxelStateWrapper(state);
+        QuizxelControllerState result = seshResource.joinAsController(existingSeshCode, new QuizxelPlayer("abcd", "abcd",false,0L));
+        QuizxelControllerState expected = new QuizxelControllerState();
         assertEquals(expected, result);
     }
 
     @Test
     void joinAsHost_existingSesh_shouldCallGameLogicServiceAndReturnState() {
 
-        Map<String, Object> state = new HashMap<> ();
-        state.put("seshCode", existingSeshCode);
+        HostState state = new HostState();
         when(gameLogicService.joinAsHost(eq(existingSeshCode), any())).thenReturn(state);
-        QuizxelStateWrapper result = seshResource.joinAsHost(existingSeshCode, new QuizxelPlayer("abcd", "abcd"));
-        QuizxelStateWrapper expected = new QuizxelStateWrapper(state);
+        QuizxelHostState result = seshResource.joinAsHost(existingSeshCode, new QuizxelPlayer("abcd", "abcd",false,0L));
+        QuizxelHostState expected = new QuizxelHostState();
         assertEquals(expected, result);
     }
 }

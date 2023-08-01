@@ -86,7 +86,7 @@ public class QuizxelSeshResource {
 
         log.info("Started joinAsHost with seshCode={}, quizxelPlayer={}", seshCode, quizxelPlayer);
         Player player = modelMapper.map(quizxelPlayer, Player.class);
-        HostState state = gameLogicService.joinAsHost(seshCode, player.getId());
+        HostState state = gameLogicService.joinAsHost(seshCode, player.getPlayerId());
         QuizxelHostState hostState = modelMapper.map(state, QuizxelHostState.class);
         log.info("Finished joinAsHost with seshCode={}, quizxelPlayer={}", seshCode, quizxelPlayer);
 
