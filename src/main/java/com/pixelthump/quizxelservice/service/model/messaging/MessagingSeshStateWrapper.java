@@ -3,11 +3,12 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-@Data
-@NoArgsConstructor
-@AllArgsConstructor
-public class MessagingSeshUpdate {
+import java.util.Map;
 
-    private MessagingSeshStateWrapper host;
-    private MessagingSeshStateWrapper controller;
+@Data
+@AllArgsConstructor
+@NoArgsConstructor
+public class MessagingSeshStateWrapper {
+
+    private Map<String, Object> state;
 }

@@ -1,5 +1,6 @@
 package com.pixelthump.quizxelservice.service;
 import com.pixelthump.quizxelservice.service.model.messaging.MessagingPlayer;
+import com.pixelthump.quizxelservice.service.model.messaging.MessagingSeshStateWrapper;
 import com.pixelthump.quizxelservice.service.model.messaging.MessagingSeshUpdate;
 import com.pixelthump.quizxelservice.service.model.messaging.SeshUpdate;
 import com.pixelthump.quizxelservice.service.model.state.ControllerState;
@@ -38,8 +39,8 @@ public class BroadcastServiceImpl implements BroadcastService {
         log.debug("Broadcasting to {} with {}", seshCode, seshCode);
 
 
-        Map<String, Object> host = getHostMap(seshUpdate.getHost());
-        Map<String, Object> controller = getControllerMap(seshUpdate.getController());
+        MessagingSeshStateWrapper host = new MessagingSeshStateWrapper(getHostMap(seshUpdate.getHost()));
+        MessagingSeshStateWrapper controller = new MessagingSeshStateWrapper(getControllerMap(seshUpdate.getController()));
         MessagingSeshUpdate messagingSeshUpdate = new MessagingSeshUpdate(host, controller);
 
         String apiUrl = backendBasePath + "/messaging/seshs/" + seshCode + "/broadcasts";
