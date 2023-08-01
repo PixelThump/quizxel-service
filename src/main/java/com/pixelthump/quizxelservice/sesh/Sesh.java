@@ -103,7 +103,7 @@ public class Sesh {
         this.unprocessedCommands.offer(command);
     }
 
-    @Scheduled(fixedDelay = 33)
+    @Scheduled(fixedDelay = 200)
     public void processQueue() {
 
         if (!playerManager.hasHostJoined() && playerManager.getPlayers().isEmpty()) {
