@@ -1,4 +1,4 @@
-package com.pixelthump.quizxelservice.rest.model;
+package com.pixelthump.quizxelservice.rest.model.ping;
 import java.time.OffsetDateTime;
 
 /**

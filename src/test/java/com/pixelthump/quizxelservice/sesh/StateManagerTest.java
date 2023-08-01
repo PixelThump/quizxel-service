@@ -1,7 +1,7 @@
 package com.pixelthump.quizxelservice.sesh;
 import com.pixelthump.quizxelservice.Application;
-import com.pixelthump.quizxelservice.messaging.model.Action;
-import com.pixelthump.quizxelservice.messaging.model.Command;
+import com.pixelthump.quizxelservice.service.model.Action;
+import com.pixelthump.quizxelservice.service.model.Command;
 import com.pixelthump.quizxelservice.sesh.model.Player;
 import com.pixelthump.quizxelservice.sesh.model.SeshStage;
 import com.pixelthump.quizxelservice.sesh.model.SeshState;

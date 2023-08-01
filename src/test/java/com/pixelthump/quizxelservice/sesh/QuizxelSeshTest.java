@@ -1,12 +1,7 @@
 package com.pixelthump.quizxelservice.sesh;
 import com.pixelthump.quizxelservice.Application;
-import com.pixelthump.quizxelservice.messaging.MessageBroadcaster;
-import com.pixelthump.quizxelservice.messaging.model.Action;
-import com.pixelthump.quizxelservice.messaging.model.Command;
-import com.pixelthump.quizxelservice.sesh.exception.PlayerAlreadyJoinedException;
-import com.pixelthump.quizxelservice.sesh.exception.PlayerNotInSeshException;
-import com.pixelthump.quizxelservice.sesh.exception.SeshCurrentlyNotJoinableException;
-import com.pixelthump.quizxelservice.sesh.exception.SeshIsFullException;
+import com.pixelthump.quizxelservice.service.model.Action;
+import com.pixelthump.quizxelservice.service.model.Command;
 import com.pixelthump.quizxelservice.sesh.model.Player;
 import com.pixelthump.quizxelservice.sesh.model.SeshStage;
 import com.pixelthump.quizxelservice.sesh.model.SeshState;
@@ -19,6 +14,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.RestTemplate;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -35,8 +31,6 @@ class QuizxelSeshTest {
     private static final String SESH_CODE = "ABCD";
     @Autowired
     Sesh sesh;
-    @MockBean
-    MessageBroadcaster broadcaster;
     @MockBean
     StateManager stateManager;
     @MockBean
@@ -87,7 +81,7 @@ class QuizxelSeshTest {
     void joinAsHost_hostAlreadyJoined_shouldThrowPlayerAlreadyJoinedexception() {
 
         when(playerManager.joinAsHost(hostSocketId)).thenReturn(false);
-        assertThrows(PlayerAlreadyJoinedException.class, () -> sesh.joinAsHost(hostSocketId));
+        assertThrows(ResponseStatusException.class, () -> sesh.joinAsHost(hostSocketId));
     }
 
     @Test
@@ -103,7 +97,7 @@ class QuizxelSeshTest {
     void joinAsController_fullSesh_shouldThrowSeshIsFullException() {
 
         when(playerManager.isSeshFull()).thenReturn(true);
-        assertThrows(SeshIsFullException.class, () -> sesh.joinAsController(playerName, playerId));
+        assertThrows(ResponseStatusException.class, () -> sesh.joinAsController(playerName, playerId));
     }
 
     @Test
@@ -111,7 +105,7 @@ class QuizxelSeshTest {
 
         when(playerManager.isSeshFull()).thenReturn(false);
         when(this.playerManager.hasHostJoined()).thenReturn(false);
-        assertThrows(SeshCurrentlyNotJoinableException.class, () -> sesh.joinAsController(playerName, playerId));
+        assertThrows(ResponseStatusException.class, () -> sesh.joinAsController(playerName, playerId));
     }
 
     @Test
@@ -120,7 +114,7 @@ class QuizxelSeshTest {
         when(playerManager.isSeshFull()).thenReturn(false);
         when(playerManager.hasHostJoined()).thenReturn(true);
         when(playerManager.joinAsPlayer(playerName, playerId)).thenReturn(false);
-        assertThrows(PlayerAlreadyJoinedException.class, () -> sesh.joinAsController(playerName, playerId));
+        assertThrows(ResponseStatusException.class, () -> sesh.joinAsController(playerName, playerId));
     }
 
     @Test
@@ -139,7 +133,7 @@ class QuizxelSeshTest {
     void addCommand_playerHasNotJoined_shouldThrowPlayerNotInSeshException() {
 
         when(playerManager.hasPlayerAlreadyJoinedByPlayerId(playerId)).thenReturn(false);
-        assertThrows(PlayerNotInSeshException.class, () -> sesh.addCommand(command));
+        assertThrows(ResponseStatusException.class, () -> sesh.addCommand(command));
     }
 
     @Test
@@ -181,8 +175,6 @@ class QuizxelSeshTest {
 
         assertTrue(unprocessedCommands.isEmpty());
         verify(stateManager).processCommand(command);
-        verify(broadcaster).broadcastSeshUpdateToHost(SESH_CODE, hostLobbyState);
-        verify(broadcaster).broadcastSeshUpdateToControllers(SESH_CODE, playerLobbyState);
     }
 
     boolean lastInteractionTimeIsAboutNow() {

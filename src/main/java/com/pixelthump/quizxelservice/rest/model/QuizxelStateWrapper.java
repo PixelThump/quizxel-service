@@ -5,7 +5,7 @@ import lombok.Data;
 
 @Data
 @AllArgsConstructor
-public class QuizxelState {
+public class QuizxelStateWrapper {
 
     private SeshState state;
 }

@@ -1,4 +1,5 @@
-package com.pixelthump.quizxelservice.messaging.model.message;
+package com.pixelthump.quizxelservice.rest.model;
+import com.pixelthump.quizxelservice.service.model.Command;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -8,7 +9,7 @@ import lombok.NoArgsConstructor;
 @EqualsAndHashCode
 @AllArgsConstructor
 @NoArgsConstructor
-public class GenericStompMessage implements StompMessage {
+public class QuizxelCommandWrapper {
 
-    private Object object;
+    Command command;
 }

@@ -1,5 +1,5 @@
 package com.pixelthump.quizxelservice.rest;
-import com.pixelthump.quizxelservice.rest.model.Ping;
+import com.pixelthump.quizxelservice.rest.model.ping.Ping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;

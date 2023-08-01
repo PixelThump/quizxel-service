@@ -11,4 +11,10 @@ public class SeshInfo {
 
         this.seshType = "quizxel";
     }
+
+    public SeshInfo(String seshType, String seshCode) {
+
+        this.seshType = seshType;
+        this.seshCode = seshCode;
+    }
 }

@@ -1,4 +1,4 @@
-package com.pixelthump.quizxelservice.messaging.model;
+package com.pixelthump.quizxelservice.service.model;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 

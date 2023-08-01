@@ -1,10 +1,9 @@
 package com.pixelthump.quizxelservice.service;
-import com.pixelthump.quizxelservice.service.exception.NoSuchSeshException;
+import com.pixelthump.quizxelservice.service.model.Command;
 import com.pixelthump.quizxelservice.service.model.SeshInfo;
+import com.pixelthump.quizxelservice.sesh.Sesh;
 import com.pixelthump.quizxelservice.sesh.model.Player;
 import com.pixelthump.quizxelservice.sesh.model.SeshState;
-import com.pixelthump.quizxelservice.sesh.Sesh;
-import com.pixelthump.quizxelservice.messaging.model.message.CommandStompMessage;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 import org.springframework.web.server.ResponseStatusException;
@@ -49,51 +48,21 @@ public class SeshServiceImpl implements SeshService {
     @Override
     public SeshState joinAsController(String seshCode, Player player) {
 
-        final Sesh sesh;
-
-        try {
-
-            sesh = getSesh(seshCode);
-
-        } catch (ResponseStatusException e) {
-
-            throw new NoSuchSeshException(e.getMessage());
-        }
-
+        final Sesh sesh = getSesh(seshCode);
         return sesh.joinAsController(player.getPlayerName(), player.getPlayerId());
     }
 
     public SeshState joinAsHost(String seshCode, String socketId) {
 
-        final Sesh sesh;
-
-        try {
-
-            sesh = getSesh(seshCode);
-
-        } catch (ResponseStatusException e) {
-
-            throw new NoSuchSeshException(e.getMessage());
-        }
-
+        final Sesh sesh = getSesh(seshCode);
         return sesh.joinAsHost(socketId);
     }
 
     @Override
-    public void sendCommandToSesh(CommandStompMessage message, String seshCode) throws NoSuchSeshException, UnsupportedOperationException {
+    public void sendCommandToSesh(Command command, String seshCode) {
 
-        final Sesh sesh;
-
-        try {
-
-            sesh = getSesh(seshCode);
-
-        } catch (ResponseStatusException e) {
-
-            throw new NoSuchSeshException(e.getMessage());
-        }
-
-        sesh.addCommand(message.getCommand());
+        final Sesh sesh = getSesh(seshCode);
+        sesh.addCommand(command);
     }
 
     private Sesh getSesh(String seshCode) {
