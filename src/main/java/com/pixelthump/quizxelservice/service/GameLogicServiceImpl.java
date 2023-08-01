@@ -118,8 +118,8 @@ public class GameLogicServiceImpl implements GameLogicService {
 
             return state;
         }
-        state.getPlayers().stream().filter(player -> !player.getPlayerId().equals(executerId)).forEach(player -> player.setVip(false));
-        state.getPlayers().stream().filter(player -> !player.getPlayerId().equals(targetId)).forEach(player -> player.setVip(true));
+        state.getPlayers().stream().filter(player -> player.getPlayerId().equals(executerId)).forEach(player -> player.setVip(false));
+        state.getPlayers().stream().filter(player -> player.getPlayerId().equals(targetId)).forEach(player -> player.setVip(true));
         return state;
     }
 
