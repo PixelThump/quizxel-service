@@ -37,7 +37,7 @@ public class GameLogicServiceImpl implements GameLogicService {
         this.seshService = seshService;
     }
 
-    @Scheduled(fixedDelay = 100)
+    @Scheduled(fixedRateString = "${quizxel.tickrate}", initialDelayString = "${quizxel.tickrate}")
     public void processQueues() {
 
         List<State> states = stateRepository.findByActive(true);
@@ -58,6 +58,7 @@ public class GameLogicServiceImpl implements GameLogicService {
             try {
 
                 processCommand(state, command);
+                commandRespository.deleteByCommandId(command.getCommandId());
             } catch (Exception e) {
 
                 log.warn("Unable to process command={}", command);

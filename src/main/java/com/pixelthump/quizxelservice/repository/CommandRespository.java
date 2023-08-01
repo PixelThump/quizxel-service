@@ -7,6 +7,8 @@ import java.util.List;
 
 public interface CommandRespository extends JpaRepository<Command, CommandId> {
 
+    long deleteByCommandId(CommandId commandId);
+
     List<Command> findByCommandId_State_SeshCodeOrderByCommandId_TimestampAsc(String seshCode);
 
 }

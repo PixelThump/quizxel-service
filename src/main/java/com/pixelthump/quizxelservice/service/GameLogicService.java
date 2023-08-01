@@ -9,4 +9,5 @@ public interface GameLogicService {
 
 
     Map<String, Object> joinAsHost(String seshCode, String socketId);
+    void processQueues();
 }
