@@ -14,7 +14,7 @@ import java.util.Map;
 @Scope("prototype")
 public class PlayerManager {
 
-    static final Integer MAX_PLAYERS = 5;
+    static final Integer MAX_PLAYERS = 10;
     @Getter
     @Setter
     private boolean isJoinable;
