@@ -67,10 +67,10 @@ public class QuizxelSeshResource {
     @PostMapping("/{seshCode}/players/controller")
     @ResponseBody
     public QuizxelStateWrapper joinAsController(@PathVariable String seshCode , @RequestBody QuizxelPlayer quizxelPlayer){
-        log.info("Started addCommand with seshCode={}, quizxelPlayer={}", seshCode, quizxelPlayer);
+        log.info("Started joinAsController with seshCode={}, quizxelPlayer={}", seshCode, quizxelPlayer);
         Player player = modelMapper.map(quizxelPlayer, Player.class);
         Map<String, Object> state = gameLogicService.joinAsController(seshCode, player);
-        log.info("Finished addCommand with seshCode={}, quizxelPlayer={}", seshCode, quizxelPlayer);
+        log.info("Finished joinAsController with seshCode={}, quizxelPlayer={}", seshCode, quizxelPlayer);
 
         return new QuizxelStateWrapper(state);
     }
@@ -78,10 +78,10 @@ public class QuizxelSeshResource {
     @PostMapping("/{seshCode}/players/host")
     @ResponseBody
     public QuizxelStateWrapper joinAsHost(@PathVariable String seshCode , @RequestBody QuizxelPlayer quizxelPlayer){
-        log.info("Started addCommand with seshCode={}, quizxelPlayer={}", seshCode, quizxelPlayer);
+        log.info("Started joinAsHost with seshCode={}, quizxelPlayer={}", seshCode, quizxelPlayer);
         Player player = modelMapper.map(quizxelPlayer, Player.class);
         Map<String, Object> state = gameLogicService.joinAsHost(seshCode, player.getId());
-        log.info("Finished addCommand with seshCode={}, quizxelPlayer={}", seshCode, quizxelPlayer);
+        log.info("Finished joinAsHost with seshCode={}, quizxelPlayer={}", seshCode, quizxelPlayer);
 
         return new QuizxelStateWrapper(state);
     }
