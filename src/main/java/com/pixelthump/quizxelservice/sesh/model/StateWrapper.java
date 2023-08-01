@@ -7,5 +7,5 @@ import lombok.Data;
 @AllArgsConstructor
 public class StateWrapper {
 
-    private SeshState seshState;
+    private SeshState state;
 }
