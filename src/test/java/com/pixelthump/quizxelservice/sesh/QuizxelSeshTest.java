@@ -51,7 +51,7 @@ class QuizxelSeshTest {
         hostLobbyState.setCurrentStage(SeshStage.LOBBY);
         hostLobbyState.setSeshCode(SESH_CODE);
         hostLobbyState.setPlayers(new ArrayList<>());
-        hostLobbyState.setMaxPlayers(5);
+        hostLobbyState.setMaxPlayers(10);
         hostLobbyState.setHasVip(false);
 
         playerLobbyState = new ControllerLobbyState();
