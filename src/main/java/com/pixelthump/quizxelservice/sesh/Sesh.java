@@ -1,9 +1,10 @@
 package com.pixelthump.quizxelservice.sesh;
 import com.pixelthump.quizxelservice.service.model.Command;
+import com.pixelthump.quizxelservice.sesh.model.SeshUpdate;
 import com.pixelthump.quizxelservice.sesh.model.StateWrapper;
 import com.pixelthump.quizxelservice.sesh.model.state.SeshState;
-import com.pixelthump.quizxelservice.sesh.model.SeshUpdate;
 import lombok.Getter;
+import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Scope;
 import org.springframework.http.HttpStatus;
@@ -18,6 +19,7 @@ import java.util.LinkedList;
 
 @Component
 @Scope("prototype")
+@Log4j2
 public class Sesh {
 
     @Getter
@@ -52,7 +54,7 @@ public class Sesh {
         this.lastInteractionTime = LocalDateTime.now();
     }
 
-    public SeshState joinAsHost(String socketId){
+    public SeshState joinAsHost(String socketId) {
 
         if (!playerManager.joinAsHost(socketId)) {
 
@@ -131,6 +133,7 @@ public class Sesh {
 
         String apiUrl = backendBasePath + "/messaging/seshs/" + seshCode + "/broadcasts";
         SeshUpdate seshUpdate = new SeshUpdate(getHostState(), getControllerState());
+        log.info("Broadcasting seshUpdate={}", seshUpdate);
         restTemplate.postForEntity(apiUrl, seshUpdate, String.class);
     }
 }
