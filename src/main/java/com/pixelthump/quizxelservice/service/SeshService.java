@@ -1,8 +1,7 @@
 package com.pixelthump.quizxelservice.service;
-import com.pixelthump.quizxelservice.service.model.Command;
+import com.pixelthump.quizxelservice.repository.model.command.Command;
+import com.pixelthump.quizxelservice.repository.model.State;
 import com.pixelthump.quizxelservice.service.model.SeshInfo;
-import com.pixelthump.quizxelservice.sesh.model.Player;
-import com.pixelthump.quizxelservice.sesh.model.state.SeshState;
 
 public interface SeshService {
 
@@ -10,9 +9,7 @@ public interface SeshService {
 
     SeshInfo hostSesh(String seshCode);
 
-    SeshState joinAsController(String seshCode, Player player);
+    void sendCommandToSesh(Command command, String seshCode);
 
-    SeshState joinAsHost(String seshCode, String socketId);
-
-    void sendCommandToSesh(Command message, String seshCode);
+    State getSesh(String seshCode);
 }

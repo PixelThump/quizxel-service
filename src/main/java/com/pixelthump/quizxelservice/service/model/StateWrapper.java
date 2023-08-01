@@ -1,13 +1,12 @@
 package com.pixelthump.quizxelservice.service.model;
 import lombok.AllArgsConstructor;
 import lombok.Data;
-import lombok.NoArgsConstructor;
+
+import java.util.Map;
 
 @Data
 @AllArgsConstructor
-@NoArgsConstructor
-public class Command {
+public class StateWrapper {
 
-    private String playerId;
-    private Action<?> action;
+    private Map<String, Object> state;
 }
