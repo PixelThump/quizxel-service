@@ -62,7 +62,7 @@ public class Sesh {
         }
         this.lastInteractionTime = LocalDateTime.now();
 
-        return getHostState().getSeshState();
+        return getHostState().getState();
     }
 
     public SeshState joinAsController(String playerName, String socketId) {
@@ -84,7 +84,7 @@ public class Sesh {
 
         this.lastInteractionTime = LocalDateTime.now();
 
-        return this.getControllerState().getSeshState();
+        return this.getControllerState().getState();
     }
 
     public void addCommand(Command command) {
