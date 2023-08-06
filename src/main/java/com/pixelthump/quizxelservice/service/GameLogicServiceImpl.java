@@ -1,11 +1,13 @@
 package com.pixelthump.quizxelservice.service;
 import com.pixelthump.quizxelservice.repository.CommandRespository;
 import com.pixelthump.quizxelservice.repository.PlayerRepository;
+import com.pixelthump.quizxelservice.repository.QuestionRepository;
 import com.pixelthump.quizxelservice.repository.StateRepository;
 import com.pixelthump.quizxelservice.repository.model.Player;
 import com.pixelthump.quizxelservice.repository.model.SeshStage;
 import com.pixelthump.quizxelservice.repository.model.State;
 import com.pixelthump.quizxelservice.repository.model.command.Command;
+import com.pixelthump.quizxelservice.repository.model.question.Question;
 import com.pixelthump.quizxelservice.service.model.messaging.SeshUpdate;
 import com.pixelthump.quizxelservice.service.model.state.ControllerState;
 import com.pixelthump.quizxelservice.service.model.state.HostState;
@@ -17,12 +19,14 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Component
 @Log4j2
 public class GameLogicServiceImpl implements GameLogicService {
 
+    private final QuestionRepository questionRepository;
     private final PlayerRepository playerRepository;
     private final StateRepository stateRepository;
     private final CommandRespository commandRespository;
@@ -30,19 +34,22 @@ public class GameLogicServiceImpl implements GameLogicService {
     private final SeshService seshService;
 
     @Autowired
-    public GameLogicServiceImpl(StateRepository stateRepository, CommandRespository commandRespository, BroadcastService broadcastService, SeshService seshService, PlayerRepository playerRepository) {
+    public GameLogicServiceImpl(StateRepository stateRepository, CommandRespository commandRespository, BroadcastService broadcastService, SeshService seshService, PlayerRepository playerRepository,
+                                QuestionRepository questionRepository) {
 
         this.stateRepository = stateRepository;
         this.commandRespository = commandRespository;
         this.broadcastService = broadcastService;
         this.seshService = seshService;
         this.playerRepository = playerRepository;
+        this.questionRepository = questionRepository;
     }
 
     @Scheduled(fixedDelayString = "${quizxel.tickrate}", initialDelayString = "${quizxel.tickrate}")
     public void processQueues() {
 
         List<State> states = stateRepository.findByActive(true);
+        if (states.isEmpty()) return;
         states.parallelStream().forEach(this::processQueue);
     }
 
@@ -54,12 +61,11 @@ public class GameLogicServiceImpl implements GameLogicService {
         }
 
         List<Command> commands = commandRespository.findByCommandId_State_SeshCodeOrderByCommandId_TimestampAsc(state.getSeshCode());
-
+        List<Command> processedCommands = new ArrayList<>();
         for (Command command : commands) {
 
             try {
-
-                processCommand(state, command);
+                if (processCommand(state, command)) processedCommands.add(command);
                 commandRespository.deleteByCommandId(command.getCommandId());
             } catch (Exception e) {
                 commandRespository.deleteByCommandId(command.getCommandId());
@@ -69,7 +75,7 @@ public class GameLogicServiceImpl implements GameLogicService {
         broadcastState(state);
     }
 
-    private State processCommand(State state, Command command) {
+    private boolean processCommand(State state, Command command) {
 
         State newState;
 
@@ -77,15 +83,15 @@ public class GameLogicServiceImpl implements GameLogicService {
 
             newState = processLobbyStageCommand(state, command);
             stateRepository.save(newState);
-            return newState;
+            return true;
 
         } else if (state.getSeshStage() == SeshStage.MAIN) {
 
             newState = processMainStageCommand(state, command);
             stateRepository.save(newState);
-            return newState;
+            return false;
         }
-        return state;
+        return false;
     }
 
     private State processLobbyStageCommand(State state, Command command) {
@@ -175,7 +181,7 @@ public class GameLogicServiceImpl implements GameLogicService {
 
     private static boolean isVip(State state, String playerId) {
 
-        return state.getPlayers().stream().anyMatch(player -> player.getPlayerName().equals(playerId) && player.getVip());
+        return state.getPlayers().stream().anyMatch(player -> player.getPlayerId().equals(playerId) && player.getVip());
     }
 
     private void broadcastState(State state) {
@@ -207,7 +213,9 @@ public class GameLogicServiceImpl implements GameLogicService {
 
         } else if (state.getSeshStage() == SeshStage.MAIN) {
 
-            hostState.setCurrentQuestion(state.getSelectedQuestionPack().getQuestions().get(state.getCurrentQuestionIndex().intValue()));
+            String selectedPackName = state.getSelectedQuestionPack().getPackName();
+            Question currentQuestion = questionRepository.findByQuestionpack_PackNameAndPackIndex(selectedPackName, state.getCurrentQuestionIndex());
+            hostState.setCurrentQuestion(currentQuestion);
             hostState.setShowQuestion(state.getShowQuestion());
             hostState.setShowAnswer(state.getShowAnswer());
             hostState.setBuzzedPlayerId(state.getBuzzedPlayerId());
