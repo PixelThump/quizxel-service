@@ -10,5 +10,6 @@ public class MessagingQuestion<T> {
 
     private String questionPack;
     private String questionText;
+    private String type;
     private T questionAnswer;
 }

@@ -19,6 +19,10 @@ public class MultiAnswerBuzzerQuestion extends Question<List<String>>{
     @CollectionTable(name = "multi_answer_buzzer_question_answers", joinColumns = @JoinColumn(name = "multi_answer_buzzer_question_id"))
     private List<String> answer = new ArrayList<>();
 
+    public MultiAnswerBuzzerQuestion() {
+        this.setType("MULTIBUZZER");
+    }
+
     @Override
     public boolean equals(Object o) {
 

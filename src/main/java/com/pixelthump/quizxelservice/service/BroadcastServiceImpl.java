@@ -53,7 +53,7 @@ public class BroadcastServiceImpl implements BroadcastService {
         Question<?> currentQuestion = controllerState.getCurrentQuestion();
         MessagingQuestion<?> messagingQuestion = null;
         if (currentQuestion != null) {
-            messagingQuestion = new MessagingQuestion<>(currentQuestion.getQuestionpack().getPackName(), currentQuestion.getText(), currentQuestion.getAnswer());
+            messagingQuestion = new MessagingQuestion<>(currentQuestion.getQuestionpack().getPackName(), currentQuestion.getText(), currentQuestion.getType(), currentQuestion.getAnswer());
         }
         controller.put("players", hostPlayers);
         controller.put("seshCode", controllerState.getSeshCode());
@@ -76,7 +76,7 @@ public class BroadcastServiceImpl implements BroadcastService {
         Question<?> currentQuestion = hostState.getCurrentQuestion();
         MessagingQuestion<?> messagingQuestion = null;
         if (currentQuestion != null) {
-            messagingQuestion = new MessagingQuestion<>(currentQuestion.getQuestionpack().getPackName(), currentQuestion.getText(), currentQuestion.getAnswer());
+            messagingQuestion = new MessagingQuestion<>(currentQuestion.getQuestionpack().getPackName(), currentQuestion.getText(), currentQuestion.getType(), currentQuestion.getAnswer());
         }
         host.put("players", hostPlayers);
         host.put("seshCode", hostState.getSeshCode());

@@ -15,6 +15,11 @@ public class SimpleBuzzerQuestion extends Question<String> {
 
     String answer;
 
+    public SimpleBuzzerQuestion() {
+
+        this.setType("BUZZER");
+    }
+
     @Override
     public boolean equals(Object o) {
 

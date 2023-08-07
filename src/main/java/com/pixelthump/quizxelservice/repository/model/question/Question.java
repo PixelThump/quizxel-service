@@ -19,17 +19,16 @@ public abstract class Question<T> implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-
     private Long packIndex;
-
+    private String type;
     private String text;
     @ManyToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "questionpack_id")
     private Questionpack questionpack;
 
     public abstract T getAnswer();
-    abstract void setAnswer(T answer);
 
+    abstract void setAnswer(T answer);
 
     @Override
     public boolean equals(Object o) {
