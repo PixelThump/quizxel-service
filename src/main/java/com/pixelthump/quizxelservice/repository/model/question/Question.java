@@ -14,7 +14,7 @@ import java.util.Objects;
 @Getter
 @Setter
 
-public abstract class Question implements Serializable {
+public abstract class Question<T> implements Serializable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -27,13 +27,16 @@ public abstract class Question implements Serializable {
     @JoinColumn(name = "questionpack_id")
     private Questionpack questionpack;
 
+    public abstract T getAnswer();
+    abstract void setAnswer(T answer);
+
 
     @Override
     public boolean equals(Object o) {
 
         if (this == o) return true;
         if (o == null || Hibernate.getClass(this) != Hibernate.getClass(o)) return false;
-        Question question = (Question) o;
+        Question<?> question = (Question<?>) o;
         return getId() != null && Objects.equals(getId(), question.getId());
     }
 

@@ -1,8 +1,6 @@
 package com.pixelthump.quizxelservice.service;
-import com.pixelthump.quizxelservice.service.model.messaging.MessagingPlayer;
-import com.pixelthump.quizxelservice.service.model.messaging.MessagingSeshStateWrapper;
-import com.pixelthump.quizxelservice.service.model.messaging.MessagingSeshUpdate;
-import com.pixelthump.quizxelservice.service.model.messaging.SeshUpdate;
+import com.pixelthump.quizxelservice.repository.model.question.Question;
+import com.pixelthump.quizxelservice.service.model.messaging.*;
 import com.pixelthump.quizxelservice.service.model.state.ControllerState;
 import com.pixelthump.quizxelservice.service.model.state.HostState;
 import lombok.extern.log4j.Log4j2;
@@ -52,12 +50,14 @@ public class BroadcastServiceImpl implements BroadcastService {
         // @formatter:off
         List<MessagingPlayer> hostPlayers = modelMapper.map(controllerState.getPlayers(), new TypeToken<List<MessagingPlayer>>() {}.getType());
         // @formatter:on
+        Question<?> currentQuestion = controllerState.getCurrentQuestion();
+        MessagingQuestion<?> messagingQuestion = new MessagingQuestion<>(currentQuestion.getQuestionpack().getPackName(), currentQuestion.getText(), currentQuestion.getAnswer());
         controller.put("players", hostPlayers);
         controller.put("seshCode", controllerState.getSeshCode());
         controller.put("currentStage", controllerState.getCurrentStage());
         controller.put("maxPlayers", controllerState.getMaxPlayers());
         controller.put("hasVip", controllerState.getHasVip());
-        controller.put("currentQuestion", controllerState.getCurrentQuestion());
+        controller.put("currentQuestion", messagingQuestion);
         controller.put("showQuestion", controllerState.getShowQuestion());
         controller.put("showAnswer", controllerState.getShowAnswer());
         controller.put("buzzedPlayerId", controllerState.getBuzzedPlayerId());
@@ -70,13 +70,15 @@ public class BroadcastServiceImpl implements BroadcastService {
         // @formatter:off
         List<MessagingPlayer> hostPlayers = modelMapper.map(hostState.getPlayers(), new TypeToken<List<MessagingPlayer>>() {}.getType());
         // @formatter:on
+        Question<?> currentQuestion = hostState.getCurrentQuestion();
+        MessagingQuestion<?> messagingQuestion = new MessagingQuestion<>(currentQuestion.getQuestionpack().getPackName(), currentQuestion.getText(), currentQuestion.getAnswer());
         host.put("players", hostPlayers);
         host.put("seshCode", hostState.getSeshCode());
         host.put("currentStage", hostState.getCurrentStage());
         host.put("maxPlayers", hostState.getMaxPlayers());
         host.put("hasVip", hostState.getHasVip());
-        host.put("currentQuestion", hostState.getCurrentQuestion());
-        host.put("showQuestion", hostState.getShowQuestion());
+        host.put("currentQuestion", messagingQuestion);
+        host.put("showQuestion",hostState.getShowQuestion() );
         host.put("showAnswer", hostState.getShowAnswer());
         host.put("buzzedPlayerId", hostState.getBuzzedPlayerId());
         return host;

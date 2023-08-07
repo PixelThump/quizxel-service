@@ -12,7 +12,7 @@ import java.util.Objects;
 @DiscriminatorValue("MultiAnswerBuzzerQuestion")
 @Getter
 @Setter
-public class MultiAnswerBuzzerQuestion extends Question{
+public class MultiAnswerBuzzerQuestion extends Question<List<String>>{
 
     @ElementCollection
     @Column(name = "answer")

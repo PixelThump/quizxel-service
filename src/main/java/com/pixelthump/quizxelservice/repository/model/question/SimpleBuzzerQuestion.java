@@ -11,7 +11,7 @@ import java.util.Objects;
 @DiscriminatorValue("SimpleBuzzerQuestion")
 @Getter
 @Setter
-public class SimpleBuzzerQuestion extends Question {
+public class SimpleBuzzerQuestion extends Question<String> {
 
     String answer;
 
