@@ -9,6 +9,6 @@ import lombok.NoArgsConstructor;
 public class MessagingQuestion<T> {
 
     private String questionPack;
-    private String text;
-    private T answer;
+    private String questionText;
+    private T questionAnswer;
 }
