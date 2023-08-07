@@ -36,8 +36,7 @@ public class BroadcastServiceImpl implements BroadcastService {
     @Override
     public void broadcastSeshUpdate(SeshUpdate seshUpdate, String seshCode) {
 
-        log.debug("Broadcasting to {} with {}", seshCode, seshCode);
-
+        log.info("Broadcasting to {} with {}", seshCode, seshCode);
 
         MessagingSeshStateWrapper host = new MessagingSeshStateWrapper(getHostMap(seshUpdate.getHost()));
         MessagingSeshStateWrapper controller = new MessagingSeshStateWrapper(getControllerMap(seshUpdate.getController()));
