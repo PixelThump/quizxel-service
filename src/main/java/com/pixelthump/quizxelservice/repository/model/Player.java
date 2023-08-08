@@ -24,4 +24,8 @@ public class Player implements Serializable {
     @JoinColumn(name = "sesh_code", nullable = false)
     private State state;
 
+    public void addPoints(Integer pointsToAdd){
+
+        this.points = points + pointsToAdd;
+    }
 }

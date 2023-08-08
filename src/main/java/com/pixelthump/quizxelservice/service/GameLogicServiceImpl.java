@@ -35,8 +35,7 @@ public class GameLogicServiceImpl implements GameLogicService {
     private final SeshService seshService;
 
     @Autowired
-    public GameLogicServiceImpl(StateRepository stateRepository, CommandRespository commandRespository, BroadcastService stompBroadcastService, SeshService seshService, PlayerRepository playerRepository,
-                                QuestionRepository questionRepository) {
+    public GameLogicServiceImpl(StateRepository stateRepository, CommandRespository commandRespository, BroadcastService stompBroadcastService, SeshService seshService, PlayerRepository playerRepository, QuestionRepository questionRepository) {
 
         this.stateRepository = stateRepository;
         this.commandRespository = commandRespository;
@@ -44,6 +43,42 @@ public class GameLogicServiceImpl implements GameLogicService {
         this.seshService = seshService;
         this.playerRepository = playerRepository;
         this.questionRepository = questionRepository;
+    }
+
+    @Override
+    public ControllerState joinAsController(String seshCode, Player player) {
+
+        State state = seshService.getSesh(seshCode);
+        boolean seshIsFull = state.getPlayers().size() == state.getMaxPlayer();
+        boolean playerAlreadyJoined = playerRepository.existsByState_SeshCodeAndPlayerName(seshCode, player.getPlayerName());
+        if (seshIsFull || playerAlreadyJoined) {
+
+            throw new ResponseStatusException(HttpStatus.CONFLICT);
+        }
+
+        player.setState(state);
+        player.setVip(false);
+        player.setPoints(0L);
+        playerRepository.save(player);
+        state.getPlayers().add(player);
+        state.setHasChanged(true);
+        stateRepository.save(state);
+        return extractControllerState(state);
+    }
+
+    @Override
+    public HostState joinAsHost(String seshCode, String socketId) {
+
+        State state = seshService.getSesh(seshCode);
+        if (state.getHostId() != null) {
+
+            throw new ResponseStatusException(HttpStatus.CONFLICT);
+        }
+
+        state.setHostId(socketId);
+        state.setHasChanged(true);
+        stateRepository.save(state);
+        return extractHostState(state);
     }
 
     @Scheduled(fixedDelayString = "${quizxel.tickrate}", initialDelayString = "${quizxel.tickrate}")
@@ -74,7 +109,7 @@ public class GameLogicServiceImpl implements GameLogicService {
                 log.warn("Unable to process command={}", command);
             }
         }
-        if (!state.getHasChanged()){
+        if (!state.getHasChanged()) {
             return;
         }
         state.setHasChanged(false);
@@ -146,6 +181,7 @@ public class GameLogicServiceImpl implements GameLogicService {
             case "showQuestion" -> processShowQuestionCommand(state, command);
             case "showAnswer" -> processShowAnswerCommand(state, command);
             case "buzzer" -> processBuzzerCommand(state, command);
+            case "freeBuzzer" -> processFreeBuzzerCommand(state, command);
             default -> log.error("Got a command without a valid Action type. Action={}", command);
         }
         return state;
@@ -177,9 +213,58 @@ public class GameLogicServiceImpl implements GameLogicService {
 
     private void processBuzzerCommand(State state, Command command) {
 
-        if (!isVip(state, command.getPlayerId()) && state.getBuzzedPlayerId() != null) return;
-        if (!isVip(state, command.getPlayerId())) state.setBuzzedPlayerId(command.getPlayerId());
+        if (!isVip(state, command.getPlayerId()) && isBuzzed(state)) return;
+        if (!isVip(state, command.getPlayerId()) && !isBuzzed(state)) state.setBuzzedPlayerId(command.getPlayerId());
         if (isVip(state, command.getPlayerId())) state.setBuzzedPlayerId(command.getBody());
+    }
+
+    private void processFreeBuzzerCommand(State state, Command command) {
+
+        if (!isVip(state, command.getPlayerId()) || !isBuzzed(state)) return;
+        String commandBody = command.getBody();
+        if (commandBody == null) {
+            freeBuzzer(state);
+        } else if (commandBody.equals("correct")) {
+            handleTrueAnswer(state);
+        } else if (commandBody.equals("wrong")) {
+            handleWrongAnswer(state);
+        } else {
+            freeBuzzer(state);
+        }
+    }
+
+    private void handleWrongAnswer(State state) {
+
+        List<Player> players = state.getPlayers();
+        players.parallelStream()
+                // @formatter:off
+                .filter(player -> !player.getPlayerId().equals(state.getBuzzedPlayerId()))
+                .forEach(player -> player.addPoints(1));
+                // @formatter:on
+        freeBuzzer(state);
+
+    }
+
+    private void handleTrueAnswer(State state) {
+
+        List<Player> players = state.getPlayers();
+        int pointsToAward = players.size() - 2;
+        players.parallelStream()
+                // @formatter:off
+                .filter(player -> player.getPlayerId().equals(state.getBuzzedPlayerId()))
+                .forEach(player -> player.addPoints(pointsToAward));
+                // @formatter:on
+        freeBuzzer(state);
+    }
+
+    private void freeBuzzer(State state) {
+
+        state.setBuzzedPlayerId(null);
+    }
+
+    private boolean isBuzzed(State state) {
+
+        return state.getBuzzedPlayerId() != null;
     }
 
     private static boolean hasVip(State state) {
@@ -200,7 +285,7 @@ public class GameLogicServiceImpl implements GameLogicService {
 
         try {
             broadcastService.broadcastSeshUpdate(seshUpdate, state.getSeshCode());
-        }catch (NullPointerException e){
+        } catch (NullPointerException e) {
 
             log.error("broadcastState has failed due to stomp session being null.");
         }
@@ -239,39 +324,4 @@ public class GameLogicServiceImpl implements GameLogicService {
         return hostState;
     }
 
-    @Override
-    public ControllerState joinAsController(String seshCode, Player player) {
-
-        State state = seshService.getSesh(seshCode);
-        boolean seshIsFull = state.getPlayers().size() == state.getMaxPlayer();
-        boolean playerAlreadyJoined = playerRepository.existsByState_SeshCodeAndPlayerName(seshCode, player.getPlayerName());
-        if (seshIsFull || playerAlreadyJoined) {
-
-            throw new ResponseStatusException(HttpStatus.CONFLICT);
-        }
-
-        player.setState(state);
-        player.setVip(false);
-        player.setPoints(0L);
-        playerRepository.save(player);
-        state.getPlayers().add(player);
-        state.setHasChanged(true);
-        stateRepository.save(state);
-        return extractControllerState(state);
-    }
-
-    @Override
-    public HostState joinAsHost(String seshCode, String socketId) {
-
-        State state = seshService.getSesh(seshCode);
-        if (state.getHostId() != null) {
-
-            throw new ResponseStatusException(HttpStatus.CONFLICT);
-        }
-
-        state.setHostId(socketId);
-        state.setHasChanged(true);
-        stateRepository.save(state);
-        return extractHostState(state);
-    }
 }
