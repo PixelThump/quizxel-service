@@ -14,7 +14,7 @@ import java.util.List;
 
 public class Questionpack implements Serializable {
 
-    @OneToMany(fetch = FetchType.EAGER, mappedBy = "questionpack", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "questionpack", cascade = CascadeType.ALL, orphanRemoval = true)
     @OrderBy("packIndex")
     private List<Question<?>> questions = new ArrayList<>();
     @Id
