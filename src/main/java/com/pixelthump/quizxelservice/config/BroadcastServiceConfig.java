@@ -17,7 +17,7 @@ public class BroadcastServiceConfig {
 
 	@Bean
 	@Autowired
-	BroadcastService getBroadcastService(StompBroadcastService broadcastService, WebSocketStompClient stompClient) {
+	BroadcastService StompBroadcastService(StompBroadcastService broadcastService, WebSocketStompClient stompClient) {
 
 		String url = backendBaseUrl.replace("https", "wss://");
 		url = url.replace("http", "ws://") + "/ws";
