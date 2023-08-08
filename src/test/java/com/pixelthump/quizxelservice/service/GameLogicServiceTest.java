@@ -28,7 +28,7 @@ class GameLogicServiceTest {
     @MockBean
     CommandRespository commandRespository;
     @MockBean
-    BroadcastService broadcastService;
+    BroadcastService StompBroadcastService;
     @MockBean
     SeshService seshService;
 
