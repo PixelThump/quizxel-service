@@ -74,6 +74,10 @@ public class GameLogicServiceImpl implements GameLogicService {
                 log.warn("Unable to process command={}", command);
             }
         }
+        if (!state.getHasChanged()){
+            return;
+        }
+        state.setHasChanged(false);
         broadcastState(state);
     }
 
@@ -84,12 +88,14 @@ public class GameLogicServiceImpl implements GameLogicService {
         if (state.getSeshStage() == SeshStage.LOBBY) {
 
             newState = processLobbyStageCommand(state, command);
+            state.setHasChanged(true);
             stateRepository.save(newState);
             return true;
 
         } else if (state.getSeshStage() == SeshStage.MAIN) {
 
             newState = processMainStageCommand(state, command);
+            state.setHasChanged(true);
             stateRepository.save(newState);
             return false;
         }
@@ -249,6 +255,7 @@ public class GameLogicServiceImpl implements GameLogicService {
         player.setPoints(0L);
         playerRepository.save(player);
         state.getPlayers().add(player);
+        state.setHasChanged(true);
         stateRepository.save(state);
         return extractControllerState(state);
     }
@@ -263,6 +270,7 @@ public class GameLogicServiceImpl implements GameLogicService {
         }
 
         state.setHostId(socketId);
+        state.setHasChanged(true);
         stateRepository.save(state);
         return extractHostState(state);
     }

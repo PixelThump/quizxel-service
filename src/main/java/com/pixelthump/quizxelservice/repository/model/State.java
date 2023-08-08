@@ -39,6 +39,8 @@ public class State implements Serializable {
     private Boolean showQuestion;
     @Column(name = "show_answer")
     private Boolean showAnswer;
+    @Column(name = "has_changed", nullable = false)
+    private Boolean hasChanged = false;
 
     public void nextQuestion() {
 
