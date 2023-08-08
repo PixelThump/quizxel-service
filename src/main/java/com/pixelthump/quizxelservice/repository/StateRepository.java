@@ -7,6 +7,8 @@ import java.util.Optional;
 
 public interface StateRepository extends JpaRepository<State, String> {
 
+    State findBySeshCode(String seshCode);
+
     boolean existsBySeshCode(String seshCode);
 
     Optional<State> findBySeshCodeAndActive(String seshCode, Boolean active);

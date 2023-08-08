@@ -82,16 +82,17 @@ public class GameLogicServiceImpl implements GameLogicService {
     }
 
     @Scheduled(fixedDelayString = "${quizxel.tickrate}", initialDelayString = "${quizxel.tickrate}")
-    @Transactional
     public void processQueues() {
 
         List<State> states = stateRepository.findByActive(true);
         if (states.isEmpty()) return;
-        states.parallelStream().forEach(this::processQueue);
+        states.parallelStream().forEach(state-> processQueue(state.getSeshCode()));
     }
 
-    private void processQueue(State state) {
+    @Transactional
+    private void processQueue(String seshCode) {
 
+        State state = stateRepository.findBySeshCode(seshCode);
         if (state.getHostId() == null) {
 
             return;
