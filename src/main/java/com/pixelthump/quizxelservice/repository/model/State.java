@@ -23,7 +23,7 @@ public class State implements Serializable {
     @Enumerated(EnumType.STRING)
     @Column(name = "sesh_stage", nullable = false)
     private SeshStage seshStage;
-    @OneToMany(fetch = FetchType.EAGER, mappedBy = "state", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "state", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Player> players = new ArrayList<>();
     @Column(name = "current_question_index")
     private Long currentQuestionIndex;
