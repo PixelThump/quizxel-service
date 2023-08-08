@@ -34,12 +34,12 @@ public class GameLogicServiceImpl implements GameLogicService {
     private final SeshService seshService;
 
     @Autowired
-    public GameLogicServiceImpl(StateRepository stateRepository, CommandRespository commandRespository, BroadcastService broadcastService, SeshService seshService, PlayerRepository playerRepository,
+    public GameLogicServiceImpl(StateRepository stateRepository, CommandRespository commandRespository, BroadcastService stompBroadcastService, SeshService seshService, PlayerRepository playerRepository,
                                 QuestionRepository questionRepository) {
 
         this.stateRepository = stateRepository;
         this.commandRespository = commandRespository;
-        this.broadcastService = broadcastService;
+        this.broadcastService = stompBroadcastService;
         this.seshService = seshService;
         this.playerRepository = playerRepository;
         this.questionRepository = questionRepository;
