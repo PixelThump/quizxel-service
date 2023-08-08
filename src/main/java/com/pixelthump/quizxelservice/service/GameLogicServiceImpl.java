@@ -11,6 +11,7 @@ import com.pixelthump.quizxelservice.repository.model.question.Question;
 import com.pixelthump.quizxelservice.service.model.messaging.SeshUpdate;
 import com.pixelthump.quizxelservice.service.model.state.ControllerState;
 import com.pixelthump.quizxelservice.service.model.state.HostState;
+import jakarta.transaction.Transactional;
 import lombok.extern.log4j.Log4j2;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,7 +19,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 import org.springframework.web.server.ResponseStatusException;
-import jakarta.transaction.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -191,7 +191,14 @@ public class GameLogicServiceImpl implements GameLogicService {
         HostState host = extractHostState(state);
         ControllerState controller = extractControllerState(state);
         SeshUpdate seshUpdate = new SeshUpdate(host, controller);
-        broadcastService.broadcastSeshUpdate(seshUpdate, state.getSeshCode());
+
+        try {
+            broadcastService.broadcastSeshUpdate(seshUpdate, state.getSeshCode());
+        }catch (NullPointerException e){
+
+            log.error("broadcastState has failed due to stomp session being null.");
+        }
+
     }
 
     private ControllerState extractControllerState(State state) {
@@ -216,7 +223,7 @@ public class GameLogicServiceImpl implements GameLogicService {
         } else if (state.getSeshStage() == SeshStage.MAIN) {
 
             String selectedPackName = state.getSelectedQuestionPack().getPackName();
-            Question currentQuestion = questionRepository.findByQuestionpack_PackNameAndPackIndex(selectedPackName, state.getCurrentQuestionIndex());
+            Question<?> currentQuestion = questionRepository.findByQuestionpack_PackNameAndPackIndex(selectedPackName, state.getCurrentQuestionIndex());
             hostState.setCurrentQuestion(currentQuestion);
             hostState.setShowQuestion(state.getShowQuestion());
             hostState.setShowAnswer(state.getShowAnswer());

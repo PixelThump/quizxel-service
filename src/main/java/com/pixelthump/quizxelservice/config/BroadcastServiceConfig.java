@@ -20,10 +20,11 @@ public class BroadcastServiceConfig {
 	@Autowired
 	BroadcastService StompBroadcastService(StompBroadcastService broadcastService, WebSocketStompClient stompClient) {
 
-		String url = backendBaseUrl.replace("https://", "wss://");
-		url = url.replace("http://", "ws://") + "/ws";
-		log.error(url);
+		String backendUrl = backendBaseUrl + "/messaging/ws";
+		String url = backendUrl.replace("https","wss").replace("http", "ws");
+		log.debug(url);
 		stompClient.connectAsync(url, broadcastService);
+		log.debug("Websocket connected");
 		return broadcastService;
 	}
 }

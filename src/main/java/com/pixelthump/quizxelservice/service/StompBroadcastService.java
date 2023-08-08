@@ -47,7 +47,7 @@ public class StompBroadcastService extends StompSessionHandlerAdapter implements
 			throw new NullPointerException();
 		}
 
-		log.info("Broadcasting to {} with {}", seshCode, seshCode);
+		log.info("Broadcasting to {} with {}", seshCode, seshUpdate);
 
 		MessagingSeshStateWrapper host = new MessagingSeshStateWrapper(getHostMap(seshUpdate.getHost()));
 		MessagingSeshStateWrapper controller = new MessagingSeshStateWrapper(getControllerMap(seshUpdate.getController()));
