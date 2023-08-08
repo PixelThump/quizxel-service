@@ -51,6 +51,7 @@ class GameLogicServiceTest {
         state.getPlayers().add(new Player());
         seshs.add(state);
         when(stateRepository.findByActive(true)).thenReturn(seshs);
+        when(stateRepository.findBySeshCode(any())).thenReturn(seshs.get(0));
         List<Command> commands = getAllCommands(state);
         when(commandRespository.findByCommandId_State_SeshCodeOrderByCommandId_TimestampAsc(seshCode)).thenReturn(commands);
         gameLogicService.processQueues();
