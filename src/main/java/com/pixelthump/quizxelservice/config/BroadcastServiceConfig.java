@@ -20,8 +20,8 @@ public class BroadcastServiceConfig {
 	@Autowired
 	BroadcastService StompBroadcastService(StompBroadcastService broadcastService, WebSocketStompClient stompClient) {
 
-		String url = backendBaseUrl.replace("https", "wss://");
-		url = url.replace("http", "ws://") + "/ws";
+		String url = backendBaseUrl.replace("https://", "wss://");
+		url = url.replace("http://", "ws://") + "/ws";
 		log.error(url);
 		stompClient.connectAsync(url, broadcastService);
 		return broadcastService;
