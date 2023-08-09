@@ -24,7 +24,7 @@ import com.pixelthump.quizxelservice.service.model.state.HostState;
 import lombok.extern.log4j.Log4j2;
 
 @Log4j2
-public class StompBroadcastService extends StompSessionHandlerAdapter implements BroadcastService {
+public class StompBroadcastService extends StompSessionHandlerAdapter{
 
 	private StompSession session;
 	private final ModelMapper modelMapper;
@@ -39,7 +39,6 @@ public class StompBroadcastService extends StompSessionHandlerAdapter implements
 		this.session = session;
 	}
 
-	@Override
 	public void broadcastSeshUpdate(SeshUpdate seshUpdate, String seshCode) throws NullPointerException {
 
 		if (session == null) {
