@@ -86,11 +86,11 @@ public class GameLogicServiceImpl implements GameLogicService {
 
         List<State> states = stateRepository.findByActive(true);
         if (states.isEmpty()) return;
-        states.parallelStream().forEach(state-> processQueue(state.getSeshCode()));
+        states.parallelStream().forEach(state -> updateState(state.getSeshCode()));
     }
 
     @Transactional
-    private void processQueue(String seshCode) {
+    private void updateState(String seshCode) {
 
         State state = stateRepository.findBySeshCode(seshCode);
         if (state.getHostId() == null) {
@@ -98,56 +98,65 @@ public class GameLogicServiceImpl implements GameLogicService {
             return;
         }
 
-        List<Command> commands = commandRespository.findByCommandId_State_SeshCodeOrderByCommandId_TimestampAsc(state.getSeshCode());
-        List<Command> processedCommands = new ArrayList<>();
-        for (Command command : commands) {
+        List<Command> successfullyProcessedCommands = processCommands(state);
+        log.debug("SuccessfullyProcessedCommands={}", successfullyProcessedCommands);
 
-            try {
-                if (processCommand(state, command)) processedCommands.add(command);
-                commandRespository.deleteByCommandId(command.getCommandId());
-            } catch (Exception e) {
-                commandRespository.deleteByCommandId(command.getCommandId());
-                log.warn("Unable to process command={}", command);
-            }
-        }
-        if (!state.getHasChanged()) {
+        if (Boolean.FALSE.equals(state.getHasChanged())) {
             return;
         }
+
         state.setHasChanged(false);
         stateRepository.save(state);
         broadcastState(state);
     }
 
-    private boolean processCommand(State state, Command command) {
+    private List<Command> processCommands(State state) {
 
-        State newState;
+        List<Command> commands = commandRespository.findByCommandId_State_SeshCodeOrderByCommandId_TimestampAsc(state.getSeshCode());
+        List<Command> successfullyProcessedCommands = new ArrayList<>();
+        List<Command> processedCommands = new ArrayList<>();
+
+        for (Command command : commands) {
+
+            try {
+                boolean commandProcessedSuccessfully = processCommand(state, command);
+                if (commandProcessedSuccessfully) successfullyProcessedCommands.add(command);
+                processedCommands.add(command);
+            } catch (Exception e) {
+                processedCommands.add(command);
+                log.warn("Unable to process command={}", command);
+            }
+        }
+        commandRespository.deleteAll(processedCommands);
+        return successfullyProcessedCommands;
+    }
+
+    private boolean processCommand(State state, Command command) {
 
         if (state.getSeshStage() == SeshStage.LOBBY) {
 
-            newState = processLobbyStageCommand(state, command);
+            processLobbyStageCommand(state, command);
             state.setHasChanged(true);
-            stateRepository.save(newState);
             return true;
 
         } else if (state.getSeshStage() == SeshStage.MAIN) {
 
-            newState = processMainStageCommand(state, command);
+            processMainStageCommand(state, command);
             state.setHasChanged(true);
-            stateRepository.save(newState);
             return false;
         }
         return false;
     }
 
-    private State processLobbyStageCommand(State state, Command command) {
+    private void processLobbyStageCommand(State state, Command command) {
 
         if (isVip(state, command.getPlayerId()) && command.getType().equals("startSesh")) {
 
-            return processStartSeshCommand(state);
+            processStartSeshCommand(state);
 
         } else if ((isVip(state, command.getPlayerId()) || !hasVip(state)) && command.getType().equals("makeVip")) {
 
-            return processMakeVipCommand(state, command.getPlayerId(), command.getBody());
+            processMakeVipCommand(state, command.getPlayerId(), command.getBody());
 
         } else {
 
@@ -155,26 +164,24 @@ public class GameLogicServiceImpl implements GameLogicService {
         }
     }
 
-    private State processStartSeshCommand(State state) {
+    private void processStartSeshCommand(State state) {
 
         state.setCurrentQuestionIndex(0L);
         state.setSeshStage(SeshStage.MAIN);
-        return state;
     }
 
-    private State processMakeVipCommand(State state, String executerId, String targetId) {
+    private void processMakeVipCommand(State state, String executerId, String targetId) {
 
         boolean targetIsValid = state.getPlayers().stream().anyMatch(player -> player.getPlayerId().equals(targetId));
         if (!targetIsValid) {
 
-            return state;
+            return;
         }
         state.getPlayers().stream().filter(player -> player.getPlayerId().equals(executerId)).forEach(player -> player.setVip(false));
         state.getPlayers().stream().filter(player -> player.getPlayerId().equals(targetId)).forEach(player -> player.setVip(true));
-        return state;
     }
 
-    private State processMainStageCommand(State state, Command command) {
+    private void processMainStageCommand(State state, Command command) {
 
         String actionType = command.getType();
         switch (actionType) {
@@ -186,7 +193,6 @@ public class GameLogicServiceImpl implements GameLogicService {
             case "freeBuzzer" -> processFreeBuzzerCommand(state, command);
             default -> log.error("Got a command without a valid Action type. Action={}", command);
         }
-        return state;
     }
 
     private void processNextQuestionCommand(State state, Command command) {
