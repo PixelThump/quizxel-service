@@ -20,6 +20,8 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -83,10 +85,13 @@ public class GameLogicServiceImpl implements GameLogicService {
 
     @Scheduled(fixedDelayString = "${quizxel.tickrate}", initialDelayString = "${quizxel.tickrate}")
     public void processQueues() {
-
+        LocalDateTime startTime = LocalDateTime.now();
+        log.debug("starting processQueues at {}", startTime);
         List<State> states = stateRepository.findByActive(true);
         if (states.isEmpty()) return;
         states.parallelStream().forEach(state -> updateState(state.getSeshCode()));
+        LocalDateTime endTime = LocalDateTime.now();
+        log.debug("Finished processQueues at {} took {} ms", endTime, ChronoUnit.MILLIS.between(startTime, endTime));
     }
 
     @Transactional
