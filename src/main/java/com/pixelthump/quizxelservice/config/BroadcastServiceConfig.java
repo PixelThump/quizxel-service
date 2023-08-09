@@ -17,7 +17,7 @@ public class BroadcastServiceConfig {
 	@Value("${pixelthump.backend-basepath}")
 	private String backendBaseUrl;
 
-	@Autowired
+
 	BroadcastService StompBroadcastService(StompBroadcastService broadcastService, WebSocketStompClient stompClient) {
 
 		String backendUrl = backendBaseUrl + "/messaging/ws";

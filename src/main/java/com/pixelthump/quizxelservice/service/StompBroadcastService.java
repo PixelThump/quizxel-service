@@ -23,7 +23,6 @@ import com.pixelthump.quizxelservice.service.model.state.HostState;
 
 import lombok.extern.log4j.Log4j2;
 
-@Component
 @Log4j2
 public class StompBroadcastService extends StompSessionHandlerAdapter implements BroadcastService {
 
