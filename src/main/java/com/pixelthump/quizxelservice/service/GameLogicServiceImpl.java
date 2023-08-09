@@ -114,6 +114,7 @@ public class GameLogicServiceImpl implements GameLogicService {
             return;
         }
         state.setHasChanged(false);
+        stateRepository.save(state);
         broadcastState(state);
     }
 
