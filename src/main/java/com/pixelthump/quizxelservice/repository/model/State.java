@@ -44,14 +44,15 @@ public class State implements Serializable {
 
     public void nextQuestion() {
 
-        currentQuestionIndex++;
-        if (currentQuestionIndex >= (selectedQuestionPack.getQuestions().size())) currentQuestionIndex--;
+        long questionPackSize = selectedQuestionPack.getQuestions().size();
+        currentQuestionIndex += 1;
+        if (currentQuestionIndex >= questionPackSize) currentQuestionIndex = questionPackSize - 1;
     }
 
     public void prevQuestion() {
 
-        currentQuestionIndex++;
-        if (currentQuestionIndex++ < 0) currentQuestionIndex = 0L;
+        currentQuestionIndex -= 1;
+        if (currentQuestionIndex <= 0) currentQuestionIndex = 0L;
     }
 
     @Override
