@@ -326,8 +326,7 @@ public class GameLogicServiceImpl implements GameLogicService {
 
         } else if (state.getSeshStage() == SeshStage.MAIN) {
 
-            String selectedPackName = state.getSelectedQuestionPack().getPackName();
-            Question<?> currentQuestion = questionRepository.findByQuestionpack_PackNameAndPackIndex(selectedPackName, state.getCurrentQuestionIndex());
+            Question<?> currentQuestion = state.getSelectedQuestionPack().getQuestions().get(state.getCurrentQuestionIndex().intValue());
             hostState.setCurrentQuestion(currentQuestion);
             hostState.setShowQuestion(state.getShowQuestion());
             hostState.setShowAnswer(state.getShowAnswer());
