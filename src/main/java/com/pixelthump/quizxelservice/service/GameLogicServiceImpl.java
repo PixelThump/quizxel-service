@@ -187,11 +187,11 @@ public class GameLogicServiceImpl implements GameLogicService {
 
     private void processChangeIconCommand(State state, String playerId, String body) {
 
-        if (Arrays.stream(PlayerIconName.values()).noneMatch(playerIconName -> playerIconName.name().equals(body))){
+        if (Arrays.stream(PlayerIconName.values()).noneMatch(playerIconName -> playerIconName.name().equals(body))) {
             return;
         }
         List<Player> players = state.getPlayers().stream().filter(player -> player.getPlayerId().equals(playerId)).toList();
-        if (players.size() != 1){
+        if (players.size() != 1) {
             return;
         }
         PlayerIconName playerIconName = PlayerIconName.valueOf(body);
@@ -220,7 +220,7 @@ public class GameLogicServiceImpl implements GameLogicService {
         }
     }
 
-    private void processNextQuestionCommand(State state, Command command){
+    private void processNextQuestionCommand(State state, Command command) {
 
         if (!isVip(state, command.getPlayerId())) return;
         if ("next".equals(command.getBody())) state.nextQuestion();
@@ -240,8 +240,9 @@ public class GameLogicServiceImpl implements GameLogicService {
     private void processShowAnswerCommand(State state, Command command) {
 
         if (!isVip(state, command.getPlayerId())) return;
-        boolean showQuestion = command.getBody().equals("true");
-        state.setShowAnswer(showQuestion);
+        boolean showAnswer = command.getBody().equals("true");
+        state.setShowAnswer(showAnswer);
+        if (showAnswer) state.setShowQuestion(true);
     }
 
     private void processBuzzerCommand(State state, Command command) {
