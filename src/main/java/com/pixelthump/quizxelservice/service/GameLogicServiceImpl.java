@@ -1,9 +1,9 @@
 package com.pixelthump.quizxelservice.service;
 import com.pixelthump.quizxelservice.repository.CommandRespository;
 import com.pixelthump.quizxelservice.repository.PlayerRepository;
-import com.pixelthump.quizxelservice.repository.QuestionRepository;
 import com.pixelthump.quizxelservice.repository.StateRepository;
 import com.pixelthump.quizxelservice.repository.model.Player;
+import com.pixelthump.quizxelservice.repository.model.PlayerIconName;
 import com.pixelthump.quizxelservice.repository.model.SeshStage;
 import com.pixelthump.quizxelservice.repository.model.State;
 import com.pixelthump.quizxelservice.repository.model.command.Command;
@@ -23,13 +23,13 @@ import org.springframework.web.server.ResponseStatusException;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 @Component
 @Log4j2
 public class GameLogicServiceImpl implements GameLogicService {
 
-    private final QuestionRepository questionRepository;
     private final PlayerRepository playerRepository;
     private final StateRepository stateRepository;
     private final CommandRespository commandRespository;
@@ -37,14 +37,13 @@ public class GameLogicServiceImpl implements GameLogicService {
     private final SeshService seshService;
 
     @Autowired
-    public GameLogicServiceImpl(StateRepository stateRepository, CommandRespository commandRespository, BroadcastService stompBroadcastService, SeshService seshService, PlayerRepository playerRepository, QuestionRepository questionRepository) {
+    public GameLogicServiceImpl(StateRepository stateRepository, CommandRespository commandRespository, BroadcastService stompBroadcastService, SeshService seshService, PlayerRepository playerRepository) {
 
         this.stateRepository = stateRepository;
         this.commandRespository = commandRespository;
         this.broadcastService = stompBroadcastService;
         this.seshService = seshService;
         this.playerRepository = playerRepository;
-        this.questionRepository = questionRepository;
     }
 
     @Override
@@ -61,6 +60,7 @@ public class GameLogicServiceImpl implements GameLogicService {
         player.setState(state);
         player.setVip(false);
         player.setPoints(0L);
+        player.setPlayerIconName(PlayerIconName.BASIC);
         playerRepository.save(player);
         state.getPlayers().add(player);
         state.setHasChanged(true);
@@ -85,6 +85,7 @@ public class GameLogicServiceImpl implements GameLogicService {
 
     @Scheduled(fixedDelayString = "${quizxel.tickrate}", initialDelayString = "${quizxel.tickrate}")
     public void processQueues() {
+
         LocalDateTime startTime = LocalDateTime.now();
         log.debug("starting processQueues at {}", startTime);
         List<State> states = stateRepository.findByActive(true);
@@ -112,7 +113,7 @@ public class GameLogicServiceImpl implements GameLogicService {
 
         state.setHasChanged(false);
         broadcastState(state);
-        stateRepository.save(state); 
+        stateRepository.save(state);
     }
 
     private List<Command> processCommands(State state) {
@@ -163,16 +164,14 @@ public class GameLogicServiceImpl implements GameLogicService {
 
             processMakeVipCommand(state, command.getPlayerId(), command.getBody());
 
+        } else if (command.getType().equals("changeIcon")) {
+
+            processChangeIconCommand(state, command.getPlayerId(), command.getBody());
+
         } else {
 
             throw new IllegalArgumentException();
         }
-    }
-
-    private void processStartSeshCommand(State state) {
-
-        state.setCurrentQuestionIndex(0L);
-        state.setSeshStage(SeshStage.MAIN);
     }
 
     private void processMakeVipCommand(State state, String executerId, String targetId) {
@@ -184,6 +183,27 @@ public class GameLogicServiceImpl implements GameLogicService {
         }
         state.getPlayers().stream().filter(player -> player.getPlayerId().equals(executerId)).forEach(player -> player.setVip(false));
         state.getPlayers().stream().filter(player -> player.getPlayerId().equals(targetId)).forEach(player -> player.setVip(true));
+    }
+
+    private void processChangeIconCommand(State state, String playerId, String body) {
+
+        if (Arrays.stream(PlayerIconName.values()).noneMatch(playerIconName -> playerIconName.name().equals(body))){
+            return;
+        }
+        List<Player> players = state.getPlayers().stream().filter(player -> player.getPlayerId().equals(playerId)).toList();
+        if (players.size() != 1){
+            return;
+        }
+        PlayerIconName playerIconName = PlayerIconName.valueOf(body);
+        Player player = players.get(0);
+        player.setPlayerIconName(playerIconName);
+
+    }
+
+    private void processStartSeshCommand(State state) {
+
+        state.setCurrentQuestionIndex(0L);
+        state.setSeshStage(SeshStage.MAIN);
     }
 
     private void processMainStageCommand(State state, Command command) {
@@ -200,7 +220,7 @@ public class GameLogicServiceImpl implements GameLogicService {
         }
     }
 
-    private void processNextQuestionCommand(State state, Command command) {
+    private void processNextQuestionCommand(State state, Command command){
 
         if (!isVip(state, command.getPlayerId())) return;
         if ("next".equals(command.getBody())) state.nextQuestion();

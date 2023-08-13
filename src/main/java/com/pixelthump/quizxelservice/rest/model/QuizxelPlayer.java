@@ -12,5 +12,5 @@ public class QuizxelPlayer {
     private String playerName;
     private Boolean vip;
     private Long points;
-
+    private QuizxelPlayerIconName playerIconName;
 }

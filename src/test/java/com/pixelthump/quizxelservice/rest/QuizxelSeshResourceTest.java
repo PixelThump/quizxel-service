@@ -2,6 +2,7 @@ package com.pixelthump.quizxelservice.rest;
 import com.pixelthump.quizxelservice.Application;
 import com.pixelthump.quizxelservice.rest.model.QuizxelCommand;
 import com.pixelthump.quizxelservice.rest.model.QuizxelPlayer;
+import com.pixelthump.quizxelservice.rest.model.QuizxelPlayerIconName;
 import com.pixelthump.quizxelservice.rest.model.QuizxelSeshInfo;
 import com.pixelthump.quizxelservice.rest.model.state.QuizxelControllerState;
 import com.pixelthump.quizxelservice.rest.model.state.QuizxelHostState;
@@ -119,7 +120,7 @@ class QuizxelSeshResourceTest {
 
         ControllerState state = new ControllerState();
         when(gameLogicService.joinAsController(eq(existingSeshCode), any())).thenReturn(state);
-        QuizxelControllerState result = seshResource.joinAsController(existingSeshCode, new QuizxelPlayer("abcd", "abcd",false,0L));
+        QuizxelControllerState result = seshResource.joinAsController(existingSeshCode, new QuizxelPlayer("abcd", "abcd", false, 0L, QuizxelPlayerIconName.BASIC));
         QuizxelControllerState expected = new QuizxelControllerState();
         assertEquals(expected, result);
     }
@@ -129,7 +130,7 @@ class QuizxelSeshResourceTest {
 
         HostState state = new HostState();
         when(gameLogicService.joinAsHost(eq(existingSeshCode), any())).thenReturn(state);
-        QuizxelHostState result = seshResource.joinAsHost(existingSeshCode, new QuizxelPlayer("abcd", "abcd",false,0L));
+        QuizxelHostState result = seshResource.joinAsHost(existingSeshCode, new QuizxelPlayer("abcd", "abcd", false, 0L, QuizxelPlayerIconName.BASIC));
         QuizxelHostState expected = new QuizxelHostState();
         assertEquals(expected, result);
     }

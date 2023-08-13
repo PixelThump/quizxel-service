@@ -23,6 +23,9 @@ public class Player implements Serializable {
     @ManyToOne(cascade = CascadeType.ALL, optional = false)
     @JoinColumn(name = "sesh_code", nullable = false)
     private State state;
+    @Enumerated(EnumType.STRING)
+    @Column(name = "player_icon_name")
+    private PlayerIconName playerIconName;
 
     public void addPoints(Integer pointsToAdd){
 
