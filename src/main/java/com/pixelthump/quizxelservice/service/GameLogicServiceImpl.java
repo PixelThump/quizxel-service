@@ -58,7 +58,8 @@ public class GameLogicServiceImpl implements GameLogicService {
         }
 
         if(reconnectToken != null && playerAlreadyJoined){
-
+            state.setHasChanged(true);
+            stateRepository.save(state);
             return extractControllerState(state);
         }
 
