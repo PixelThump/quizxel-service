@@ -119,7 +119,7 @@ class QuizxelSeshResourceTest {
     void joinAsController_existingSesh_shouldCallGameLogicServiceAndReturnState() {
 
         ControllerState state = new ControllerState();
-        when(gameLogicService.joinAsController(eq(existingSeshCode), any()), any()).thenReturn(state);
+        when(gameLogicService.joinAsController(eq(existingSeshCode), any(), any())).thenReturn(state);
         QuizxelControllerState result = seshResource.joinAsController(existingSeshCode, null, new QuizxelPlayer("abcd", "abcd", false, 0L, QuizxelPlayerIconName.BASIC));
         QuizxelControllerState expected = new QuizxelControllerState();
         assertEquals(expected, result);
