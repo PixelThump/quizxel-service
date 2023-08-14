@@ -58,15 +58,13 @@ public class GameLogicServiceImpl implements GameLogicService {
 
             throw new ResponseStatusException(HttpStatus.CONFLICT);
         }
-
         if(reconnectToken != null && playerAlreadyJoined){
-            state.setHasChanged(true);
-            Optional<Player> playerOptional = state.getPlayers().stream().filter(statePlayer-> statePlayer.getPlayerId().equals(reconnectToken)).findFirst();
-            if (playerOptional.isEmpty()) throw new ResponseStatusException(HttpStatusCode.valueOf(400));
-            playerOptional.get().setPlayerName(player.getPlayerName());
-            stateRepository.save(state);
-            return extractControllerState(state);
+            return reconnectAsController(state);
         }
+        return joinFirstTimeAsController(player, state);
+    }
+
+    private ControllerState joinFirstTimeAsController(Player player, State state) {
 
         player.setState(state);
         player.setVip(false);
@@ -74,6 +72,13 @@ public class GameLogicServiceImpl implements GameLogicService {
         player.setPlayerIconName(PlayerIconName.BASIC);
         playerRepository.save(player);
         state.getPlayers().add(player);
+        state.setHasChanged(true);
+        stateRepository.save(state);
+        return extractControllerState(state);
+    }
+
+    private ControllerState reconnectAsController(State state) {
+
         state.setHasChanged(true);
         stateRepository.save(state);
         return extractControllerState(state);
