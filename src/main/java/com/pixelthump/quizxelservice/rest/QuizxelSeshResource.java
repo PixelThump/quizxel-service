@@ -6,7 +6,7 @@ import com.pixelthump.quizxelservice.rest.model.QuizxelPlayer;
 import com.pixelthump.quizxelservice.rest.model.QuizxelSeshInfo;
 import com.pixelthump.quizxelservice.rest.model.state.QuizxelControllerState;
 import com.pixelthump.quizxelservice.rest.model.state.QuizxelHostState;
-import com.pixelthump.quizxelservice.service.GameLogicService;
+import com.pixelthump.quizxelservice.service.JoinService;
 import com.pixelthump.quizxelservice.service.SeshService;
 import com.pixelthump.quizxelservice.service.model.SeshInfo;
 import com.pixelthump.quizxelservice.service.model.state.ControllerState;
@@ -22,15 +22,15 @@ import org.springframework.web.bind.annotation.*;
 public class QuizxelSeshResource {
 
     private final SeshService seshService;
-    private final GameLogicService gameLogicService;
     private final ModelMapper modelMapper;
+    private final JoinService joinService;
 
     @Autowired
-    public QuizxelSeshResource(SeshService seshService, GameLogicService gameLogicService, ModelMapper modelMapper) {
+    public QuizxelSeshResource(SeshService seshService, ModelMapper modelMapper, JoinService joinService) {
 
         this.seshService = seshService;
-        this.gameLogicService = gameLogicService;
         this.modelMapper = modelMapper;
+        this.joinService = joinService;
     }
 
     @GetMapping("/{seshCode}")
@@ -73,7 +73,7 @@ public class QuizxelSeshResource {
 
         log.info("Started joinAsController with seshCode={}, quizxelPlayer={}, reconnectToken={}", seshCode, quizxelPlayer, reconnectToken);
         Player player = modelMapper.map(quizxelPlayer, Player.class);
-        ControllerState state = gameLogicService.joinAsController(seshCode, player, reconnectToken);
+        ControllerState state = joinService.joinAsController(seshCode, player, reconnectToken);
         QuizxelControllerState controllerState = modelMapper.map(state, QuizxelControllerState.class);
         log.info("Finished joinAsController with seshCode={}, quizxelPlayer={}, reconnectToken={} state={}", seshCode, quizxelPlayer, reconnectToken, controllerState);
 
@@ -86,7 +86,7 @@ public class QuizxelSeshResource {
 
         log.info("Started joinAsHost with seshCode={}, quizxelPlayer={}, reconnectToken={}", seshCode, quizxelPlayer, reconnectToken);
         Player player = modelMapper.map(quizxelPlayer, Player.class);
-        HostState state = gameLogicService.joinAsHost(seshCode, player.getPlayerId(), reconnectToken);
+        HostState state = joinService.joinAsHost(seshCode, player.getPlayerId(), reconnectToken);
         QuizxelHostState hostState = modelMapper.map(state, QuizxelHostState.class);
         log.info("Finished joinAsHost with seshCode={}, quizxelPlayer={}, reconnectToken={} state={}", seshCode, quizxelPlayer, reconnectToken, hostState);
 

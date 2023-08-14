@@ -7,6 +7,7 @@ import com.pixelthump.quizxelservice.rest.model.QuizxelSeshInfo;
 import com.pixelthump.quizxelservice.rest.model.state.QuizxelControllerState;
 import com.pixelthump.quizxelservice.rest.model.state.QuizxelHostState;
 import com.pixelthump.quizxelservice.service.GameLogicService;
+import com.pixelthump.quizxelservice.service.JoinService;
 import com.pixelthump.quizxelservice.service.SeshService;
 import com.pixelthump.quizxelservice.service.model.SeshInfo;
 import com.pixelthump.quizxelservice.service.model.state.ControllerState;
@@ -38,6 +39,9 @@ class QuizxelSeshResourceTest {
     private SeshInfo nonExistingSesh;
     @MockBean
     GameLogicService gameLogicService;
+
+    @MockBean
+    JoinService joinService;
 
     @BeforeEach
     public void setup() {
@@ -119,7 +123,7 @@ class QuizxelSeshResourceTest {
     void joinAsController_existingSesh_shouldCallGameLogicServiceAndReturnState() {
 
         ControllerState state = new ControllerState();
-        when(gameLogicService.joinAsController(eq(existingSeshCode), any(), any())).thenReturn(state);
+        when(joinService.joinAsController(eq(existingSeshCode), any(), any())).thenReturn(state);
         QuizxelControllerState result = seshResource.joinAsController(existingSeshCode, null, new QuizxelPlayer("abcd", "abcd", false, 0L, QuizxelPlayerIconName.BASIC));
         QuizxelControllerState expected = new QuizxelControllerState();
         assertEquals(expected, result);
@@ -129,7 +133,7 @@ class QuizxelSeshResourceTest {
     void joinAsHost_existingSesh_shouldCallGameLogicServiceAndReturnState() {
 
         HostState state = new HostState();
-        when(gameLogicService.joinAsHost(eq(existingSeshCode), any(), any())).thenReturn(state);
+        when(joinService.joinAsHost(eq(existingSeshCode), any(), any())).thenReturn(state);
         QuizxelHostState result = seshResource.joinAsHost(existingSeshCode, null, new QuizxelPlayer("abcd", "abcd", false, 0L, QuizxelPlayerIconName.BASIC));
         QuizxelHostState expected = new QuizxelHostState();
         assertEquals(expected, result);

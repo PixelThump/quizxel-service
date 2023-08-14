@@ -1,6 +1,5 @@
 package com.pixelthump.quizxelservice.service;
 import com.pixelthump.quizxelservice.repository.CommandRespository;
-import com.pixelthump.quizxelservice.repository.PlayerRepository;
 import com.pixelthump.quizxelservice.repository.StateRepository;
 import com.pixelthump.quizxelservice.repository.model.Player;
 import com.pixelthump.quizxelservice.repository.model.PlayerIconName;
@@ -15,94 +14,29 @@ import jakarta.transaction.Transactional;
 import lombok.extern.log4j.Log4j2;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.HttpStatusCode;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
-import org.springframework.web.server.ResponseStatusException;
 
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Optional;
 
 @Component
 @Log4j2
 public class GameLogicServiceImpl implements GameLogicService {
 
-    private final PlayerRepository playerRepository;
     private final StateRepository stateRepository;
     private final CommandRespository commandRespository;
     private final BroadcastService broadcastService;
-    private final SeshService seshService;
 
     @Autowired
-    public GameLogicServiceImpl(StateRepository stateRepository, CommandRespository commandRespository, BroadcastService stompBroadcastService, SeshService seshService, PlayerRepository playerRepository) {
+    public GameLogicServiceImpl(StateRepository stateRepository, CommandRespository commandRespository, BroadcastService stompBroadcastService) {
 
         this.stateRepository = stateRepository;
         this.commandRespository = commandRespository;
         this.broadcastService = stompBroadcastService;
-        this.seshService = seshService;
-        this.playerRepository = playerRepository;
-    }
-
-    @Override
-    public ControllerState joinAsController(String seshCode, Player player, String reconnectToken) {
-
-        State state = seshService.getSesh(seshCode);
-        boolean seshIsFull = state.getPlayers().size() == state.getMaxPlayer();
-        boolean playerAlreadyJoined = playerRepository.existsByState_SeshCodeAndPlayerName(seshCode, player.getPlayerName());
-        if ((seshIsFull || playerAlreadyJoined) && reconnectToken == null) {
-
-            throw new ResponseStatusException(HttpStatus.CONFLICT);
-        }
-        if(reconnectToken != null && playerAlreadyJoined){
-            return reconnectAsController(state);
-        }
-        return joinFirstTimeAsController(player, state);
-    }
-
-    private ControllerState joinFirstTimeAsController(Player player, State state) {
-
-        player.setState(state);
-        player.setVip(false);
-        player.setPoints(0L);
-        player.setPlayerIconName(PlayerIconName.BASIC);
-        playerRepository.save(player);
-        state.getPlayers().add(player);
-        state.setHasChanged(true);
-        stateRepository.save(state);
-        return extractControllerState(state);
-    }
-
-    private ControllerState reconnectAsController(State state) {
-
-        state.setHasChanged(true);
-        stateRepository.save(state);
-        return extractControllerState(state);
-    }
-
-    @Override
-    public HostState joinAsHost(String seshCode, String socketId, String reconnectToken) {
-
-        State state = seshService.getSesh(seshCode);
-        String hostId = state.getHostId();
-        if (hostId != null && reconnectToken == null) {
-
-            throw new ResponseStatusException(HttpStatus.CONFLICT);
-        }
-
-        if (reconnectToken != null && hostId.equals(reconnectToken)){
-            
-            return extractHostState(state);
-        }
-
-        state.setHostId(socketId);
-        state.setHasChanged(true);
-        stateRepository.save(state);
-        return extractHostState(state);
     }
 
     @Scheduled(fixedDelayString = "${quizxel.tickrate}", initialDelayString = "${quizxel.tickrate}")
