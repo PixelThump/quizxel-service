@@ -47,14 +47,19 @@ public class GameLogicServiceImpl implements GameLogicService {
     }
 
     @Override
-    public ControllerState joinAsController(String seshCode, Player player) {
+    public ControllerState joinAsController(String seshCode, Player player, String reconnectToken) {
 
         State state = seshService.getSesh(seshCode);
         boolean seshIsFull = state.getPlayers().size() == state.getMaxPlayer();
         boolean playerAlreadyJoined = playerRepository.existsByState_SeshCodeAndPlayerName(seshCode, player.getPlayerName());
-        if (seshIsFull || playerAlreadyJoined) {
+        if ((seshIsFull || playerAlreadyJoined) && reconnectToken = null) {
 
             throw new ResponseStatusException(HttpStatus.CONFLICT);
+        }
+
+        if(reconnectToken != null && playerAlreadyJoined){
+
+            return extractControllerState(state);
         }
 
         player.setState(state);
@@ -69,12 +74,18 @@ public class GameLogicServiceImpl implements GameLogicService {
     }
 
     @Override
-    public HostState joinAsHost(String seshCode, String socketId) {
+    public HostState joinAsHost(String seshCode, String socketId, String reconnectToken) {
 
         State state = seshService.getSesh(seshCode);
-        if (state.getHostId() != null) {
+        String hostId = state.getHostId();
+        if (hostId != null && reconnectToken == null) {
 
             throw new ResponseStatusException(HttpStatus.CONFLICT);
+        }
+
+        if (reconnectToken != null && hostId.equals(reconnectToken)){
+            
+            return extractHostState(state);
         }
 
         state.setHostId(socketId);
