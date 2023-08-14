@@ -5,9 +5,9 @@ import com.pixelthump.quizxelservice.service.model.state.HostState;
 
 public interface GameLogicService {
 
-    ControllerState joinAsController(String seshCode, Player player);
+    ControllerState joinAsController(String seshCode, Player player, String reconnectToken);
 
-    HostState joinAsHost(String seshCode, String socketId);
+    HostState joinAsHost(String seshCode, String socketId, String reconnectToken);
 
     void processQueues();
 }
