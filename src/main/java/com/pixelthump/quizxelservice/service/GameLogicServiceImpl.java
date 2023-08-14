@@ -16,6 +16,7 @@ import lombok.extern.log4j.Log4j2;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.HttpStatusCode;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 import org.springframework.web.server.ResponseStatusException;
@@ -25,6 +26,7 @@ import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 
 @Component
 @Log4j2
@@ -59,6 +61,9 @@ public class GameLogicServiceImpl implements GameLogicService {
 
         if(reconnectToken != null && playerAlreadyJoined){
             state.setHasChanged(true);
+            Optional<Player> playerOptional = state.getPlayers().stream().filter(statePlayer-> statePlayer.getPlayerId().equals(reconnectToken)).findFirst();
+            if (playerOptional.isEmpty()) throw new ResponseStatusException(HttpStatusCode.valueOf(400));
+            playerOptional.get().setPlayerName(player.getPlayerName());
             stateRepository.save(state);
             return extractControllerState(state);
         }
