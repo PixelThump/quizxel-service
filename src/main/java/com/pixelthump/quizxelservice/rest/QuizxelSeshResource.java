@@ -69,26 +69,26 @@ public class QuizxelSeshResource {
 
     @PostMapping("/{seshCode}/players/controller")
     @ResponseBody
-    public QuizxelControllerState joinAsController(@PathVariable String seshCode, @RequestBody QuizxelPlayer quizxelPlayer) {
+    public QuizxelControllerState joinAsController(@PathVariable String seshCode, @RequestParam String reconnectToken, @RequestBody QuizxelPlayer quizxelPlayer) {
 
-        log.info("Started joinAsController with seshCode={}, quizxelPlayer={}", seshCode, quizxelPlayer);
+        log.info("Started joinAsController with seshCode={}, quizxelPlayer={}, reconnectToken={}", seshCode, quizxelPlayer, reconnectToken);
         Player player = modelMapper.map(quizxelPlayer, Player.class);
-        ControllerState state = gameLogicService.joinAsController(seshCode, player);
+        ControllerState state = gameLogicService.joinAsController(seshCode, player, reconnectToken);
         QuizxelControllerState controllerState = modelMapper.map(state, QuizxelControllerState.class);
-        log.info("Finished joinAsController with seshCode={}, quizxelPlayer={}", seshCode, quizxelPlayer);
+        log.info("Finished joinAsController with seshCode={}, quizxelPlayer={}, reconnectToken={} state={}", seshCode, quizxelPlayer, reconnectToken, hostState);
 
         return controllerState;
     }
 
     @PostMapping("/{seshCode}/players/host")
     @ResponseBody
-    public QuizxelHostState joinAsHost(@PathVariable String seshCode, @RequestBody QuizxelPlayer quizxelPlayer) {
+    public QuizxelHostState joinAsHost(@PathVariable String seshCode, @RequestParam String reconnectToken, @RequestBody QuizxelPlayer quizxelPlayer) {
 
-        log.info("Started joinAsHost with seshCode={}, quizxelPlayer={}", seshCode, quizxelPlayer);
+        log.info("Started joinAsHost with seshCode={}, quizxelPlayer={}, reconnectToken={}", seshCode, quizxelPlayer, reconnectToken);
         Player player = modelMapper.map(quizxelPlayer, Player.class);
-        HostState state = gameLogicService.joinAsHost(seshCode, player.getPlayerId());
+        HostState state = gameLogicService.joinAsHost(seshCode, player.getPlayerId(), reconnectToken);
         QuizxelHostState hostState = modelMapper.map(state, QuizxelHostState.class);
-        log.info("Finished joinAsHost with seshCode={}, quizxelPlayer={}", seshCode, quizxelPlayer);
+        log.info("Finished joinAsHost with seshCode={}, quizxelPlayer={}, reconnectToken={} state={}", seshCode, quizxelPlayer, reconnectToken, hostState);
 
         return hostState;
     }
