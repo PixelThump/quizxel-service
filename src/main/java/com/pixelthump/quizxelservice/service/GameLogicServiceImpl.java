@@ -52,7 +52,7 @@ public class GameLogicServiceImpl implements GameLogicService {
         State state = seshService.getSesh(seshCode);
         boolean seshIsFull = state.getPlayers().size() == state.getMaxPlayer();
         boolean playerAlreadyJoined = playerRepository.existsByState_SeshCodeAndPlayerName(seshCode, player.getPlayerName());
-        if ((seshIsFull || playerAlreadyJoined) && reconnectToken = null) {
+        if ((seshIsFull || playerAlreadyJoined) && reconnectToken == null) {
 
             throw new ResponseStatusException(HttpStatus.CONFLICT);
         }
