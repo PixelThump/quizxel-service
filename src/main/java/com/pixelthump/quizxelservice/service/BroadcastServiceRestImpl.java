@@ -17,7 +17,7 @@ import java.util.Map;
 
 @Component
 @Log4j2
-public class RestBroadcastServiceImpl implements BroadcastService {
+public class BroadcastServiceRestImpl implements BroadcastService {
 
     private final RestTemplate restTemplate;
     private final ModelMapper modelMapper;
@@ -25,7 +25,7 @@ public class RestBroadcastServiceImpl implements BroadcastService {
     private String backendBasePath;
 
     @Autowired
-    public RestBroadcastServiceImpl(RestTemplate restTemplate, ModelMapper modelMapper) {
+    public BroadcastServiceRestImpl(RestTemplate restTemplate, ModelMapper modelMapper) {
 
         this.restTemplate = restTemplate;
         this.modelMapper = modelMapper;
