@@ -119,8 +119,8 @@ class QuizxelSeshResourceTest {
     void joinAsController_existingSesh_shouldCallGameLogicServiceAndReturnState() {
 
         ControllerState state = new ControllerState();
-        when(gameLogicService.joinAsController(eq(existingSeshCode), any())).thenReturn(state);
-        QuizxelControllerState result = seshResource.joinAsController(existingSeshCode, new QuizxelPlayer("abcd", "abcd", false, 0L, QuizxelPlayerIconName.BASIC));
+        when(gameLogicService.joinAsController(eq(existingSeshCode), any()), any()).thenReturn(state);
+        QuizxelControllerState result = seshResource.joinAsController(existingSeshCode, null, new QuizxelPlayer("abcd", "abcd", false, 0L, QuizxelPlayerIconName.BASIC));
         QuizxelControllerState expected = new QuizxelControllerState();
         assertEquals(expected, result);
     }
@@ -129,8 +129,8 @@ class QuizxelSeshResourceTest {
     void joinAsHost_existingSesh_shouldCallGameLogicServiceAndReturnState() {
 
         HostState state = new HostState();
-        when(gameLogicService.joinAsHost(eq(existingSeshCode), any())).thenReturn(state);
-        QuizxelHostState result = seshResource.joinAsHost(existingSeshCode, new QuizxelPlayer("abcd", "abcd", false, 0L, QuizxelPlayerIconName.BASIC));
+        when(gameLogicService.joinAsHost(eq(existingSeshCode), any(), any())).thenReturn(state);
+        QuizxelHostState result = seshResource.joinAsHost(existingSeshCode, null, new QuizxelPlayer("abcd", "abcd", false, 0L, QuizxelPlayerIconName.BASIC));
         QuizxelHostState expected = new QuizxelHostState();
         assertEquals(expected, result);
     }
