@@ -69,7 +69,7 @@ public class QuizxelSeshResource {
 
     @PostMapping("/{seshCode}/players/controller")
     @ResponseBody
-    public QuizxelControllerState joinAsController(@PathVariable String seshCode, @RequestParam String reconnectToken, @RequestBody QuizxelPlayer quizxelPlayer) {
+    public QuizxelControllerState joinAsController(@PathVariable String seshCode, @RequestParam(required = false) String reconnectToken, @RequestBody QuizxelPlayer quizxelPlayer) {
 
         log.info("Started joinAsController with seshCode={}, quizxelPlayer={}, reconnectToken={}", seshCode, quizxelPlayer, reconnectToken);
         Player player = modelMapper.map(quizxelPlayer, Player.class);
