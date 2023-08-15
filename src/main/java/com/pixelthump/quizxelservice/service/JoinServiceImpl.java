@@ -38,7 +38,7 @@ public class JoinServiceImpl implements JoinService {
 
             return joinFirstTimeAsController(seshCode, player);
         }
-        return reconnectAsController(seshCode, reconnectToken);
+        return reconnectAsController(seshCode, player, reconnectToken);
     }
 
     private ControllerState joinFirstTimeAsController(String seshCode, Player player) {
@@ -62,12 +62,12 @@ public class JoinServiceImpl implements JoinService {
         return extractControllerState(state);
     }
 
-    private ControllerState reconnectAsController(String seshCode, String reconnectToken) {
+    private ControllerState reconnectAsController(String seshCode, Player player, String reconnectToken) {
 
         State state = seshService.getSesh(seshCode);
         boolean reconnectIsValid = state.getPlayers().parallelStream().anyMatch(statePlayer -> statePlayer.getPlayerId().equals(reconnectToken));
         if (!reconnectIsValid) {
-            throw new ResponseStatusException(HttpStatus.FORBIDDEN);
+            return joinFirstTimeAsController(seshCode, player);
         }
         state.setHasChanged(true);
         stateRepository.save(state);
