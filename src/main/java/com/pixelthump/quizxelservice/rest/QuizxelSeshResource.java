@@ -56,7 +56,7 @@ public class QuizxelSeshResource {
             log.info("Finished hostSesh with seshCode={}, result={}", seshCode, quizxelSesh);
             return quizxelSesh;
         }catch (Exception e){
-            log.warn("Finished hostSesh with seshCode={}, error={}", seshCode, e);
+            log.warn("Finished hostSesh with seshCode={}, error={}", seshCode, e.toString());
             throw e;
         }
     }
@@ -71,7 +71,7 @@ public class QuizxelSeshResource {
             seshService.sendCommandToSesh(command, seshCode);
             log.info("Finished addCommand with seshCode={}, command={}", seshCode, quizxelCommand);
         } catch (Exception e) {
-            log.warn("Finished addCommand with seshCode={}, command={} error={}", seshCode, quizxelCommand, e);
+            log.warn("Finished addCommand with seshCode={}, command={} error={}", seshCode, quizxelCommand, e.toString());
             throw e;
         }
     }
@@ -88,7 +88,7 @@ public class QuizxelSeshResource {
             log.info("Finished joinAsController with seshCode={}, quizxelPlayer={}, reconnectToken={} state={}", seshCode, quizxelPlayer, reconnectToken, controllerState);
             return controllerState;
         } catch (Exception e) {
-            log.warn("Finished joinAsController with seshCode={}, quizxelPlayer={}, reconnectToken={}, error={}", seshCode, quizxelPlayer, reconnectToken, e);
+            log.warn("Finished joinAsController with seshCode={}, quizxelPlayer={}, reconnectToken={}, error={}", seshCode, quizxelPlayer, reconnectToken, e.toString());
             throw e;
         }
 
@@ -106,7 +106,7 @@ public class QuizxelSeshResource {
             log.info("Finished joinAsHost with seshCode={}, quizxelPlayer={}, reconnectToken={} state={}", seshCode, quizxelPlayer, reconnectToken, hostState);
             return hostState;
         } catch (Exception e) {
-            log.warn("Finished joinAsHost with seshCode={}, quizxelPlayer={}, reconnectToken={}, error={}", seshCode, quizxelPlayer, reconnectToken, e);
+            log.warn("Finished joinAsHost with seshCode={}, quizxelPlayer={}, reconnectToken={}, error={}", seshCode, quizxelPlayer, reconnectToken, e.toString());
             throw e;
         }
     }

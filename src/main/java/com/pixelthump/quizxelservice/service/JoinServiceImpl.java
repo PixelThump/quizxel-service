@@ -8,6 +8,7 @@ import com.pixelthump.quizxelservice.repository.model.State;
 import com.pixelthump.quizxelservice.repository.model.question.Question;
 import com.pixelthump.quizxelservice.service.model.state.ControllerState;
 import com.pixelthump.quizxelservice.service.model.state.HostState;
+import lombok.extern.log4j.Log4j2;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -15,6 +16,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.server.ResponseStatusException;
 
 @Component
+@Log4j2
 public class JoinServiceImpl implements JoinService {
 
     private final PlayerRepository playerRepository;
@@ -32,6 +34,7 @@ public class JoinServiceImpl implements JoinService {
     @Override
     public ControllerState joinAsController(String seshCode, Player player, String reconnectToken) {
 
+        log.info(reconnectToken);
         if (reconnectToken != null) {
 
             return reconnectAsController(seshCode, reconnectToken);
