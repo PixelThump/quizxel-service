@@ -15,6 +15,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.util.List;
+
 @Component
 @Log4j2
 public class JoinServiceImpl implements JoinService {
@@ -66,7 +68,7 @@ public class JoinServiceImpl implements JoinService {
 
         State state = seshService.getSesh(seshCode);
 
-        if (!isReconnectValid(player, reconnectToken, state)) {
+        if (!isReconnectValid(player, reconnectToken, state.getPlayers())) {
             return joinFirstTimeAsController(seshCode, player);
         }
         state.setHasChanged(true);
@@ -74,9 +76,9 @@ public class JoinServiceImpl implements JoinService {
         return extractControllerState(state);
     }
 
-    private static boolean isReconnectValid(Player player, String reconnectToken, State state) {
+    private static boolean isReconnectValid(Player player, String reconnectToken, List<Player> players) {
         //  @formatter:off
-        return state.getPlayers().parallelStream()
+        return players.parallelStream()
                 .anyMatch(statePlayer ->
                         statePlayer.getPlayerId().equals(reconnectToken) && statePlayer.getPlayerName().equals(player.getPlayerName()));
         //  @formatter:on
