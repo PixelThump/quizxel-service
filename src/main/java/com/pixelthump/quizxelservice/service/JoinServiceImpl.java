@@ -34,8 +34,7 @@ public class JoinServiceImpl implements JoinService {
     @Override
     public ControllerState joinAsController(String seshCode, Player player, String reconnectToken) {
 
-        log.info(reconnectToken);
-        if (reconnectToken == null) {
+        if (reconnectToken == null || reconnectToken.equals("null")) {
 
             return joinFirstTimeAsController(seshCode, player);
         }
