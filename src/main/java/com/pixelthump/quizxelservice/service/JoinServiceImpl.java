@@ -35,12 +35,11 @@ public class JoinServiceImpl implements JoinService {
     public ControllerState joinAsController(String seshCode, Player player, String reconnectToken) {
 
         log.info(reconnectToken);
-        if (reconnectToken != null) {
+        if (reconnectToken == null) {
 
-            return reconnectAsController(seshCode, reconnectToken);
+            return joinFirstTimeAsController(seshCode, player);
         }
-
-        return joinFirstTimeAsController(seshCode, player);
+        return reconnectAsController(seshCode, reconnectToken);
     }
 
     private ControllerState joinFirstTimeAsController(String seshCode, Player player) {
