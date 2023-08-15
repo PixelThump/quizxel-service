@@ -65,13 +65,21 @@ public class JoinServiceImpl implements JoinService {
     private ControllerState reconnectAsController(String seshCode, Player player, String reconnectToken) {
 
         State state = seshService.getSesh(seshCode);
-        boolean reconnectIsValid = state.getPlayers().parallelStream().anyMatch(statePlayer -> statePlayer.getPlayerId().equals(reconnectToken));
-        if (!reconnectIsValid) {
+
+        if (!isReconnectValid(player, reconnectToken, state)) {
             return joinFirstTimeAsController(seshCode, player);
         }
         state.setHasChanged(true);
         stateRepository.save(state);
         return extractControllerState(state);
+    }
+
+    private static boolean isReconnectValid(Player player, String reconnectToken, State state) {
+        //  @formatter:off
+        return state.getPlayers().parallelStream()
+                .anyMatch(statePlayer ->
+                        statePlayer.getPlayerId().equals(reconnectToken) && statePlayer.getPlayerName().equals(player.getPlayerName()));
+        //  @formatter:on
     }
 
     @Override
