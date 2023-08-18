@@ -1,4 +1,4 @@
-package com.pixelthump.quizxelservice.rest.model;
+package com.pixelthump.quizxelservice.rest.model.command;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -8,7 +8,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class QuizxelCommand {
 
-    private String playerId;
+    private String playerName;
     private String type;
     private String body;
 

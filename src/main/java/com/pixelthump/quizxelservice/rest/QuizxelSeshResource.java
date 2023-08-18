@@ -1,7 +1,7 @@
 package com.pixelthump.quizxelservice.rest;
 import com.pixelthump.quizxelservice.repository.model.player.Player;
 import com.pixelthump.quizxelservice.repository.model.command.Command;
-import com.pixelthump.quizxelservice.rest.model.QuizxelCommand;
+import com.pixelthump.quizxelservice.rest.model.command.QuizxelCommand;
 import com.pixelthump.quizxelservice.rest.model.QuizxelPlayer;
 import com.pixelthump.quizxelservice.rest.model.QuizxelSeshInfo;
 import com.pixelthump.quizxelservice.rest.model.state.QuizxelControllerState;
@@ -85,10 +85,10 @@ public class QuizxelSeshResource {
             Player player = modelMapper.map(quizxelPlayer, Player.class);
             ControllerState state = joinService.joinAsController(seshCode, player);
             QuizxelControllerState controllerState = modelMapper.map(state, QuizxelControllerState.class);
-            log.info("Finished joinAsController with seshCode={}, quizxelPlayer={}, reconnectToken={} state={}", seshCode, quizxelPlayer,  controllerState);
+            log.info("Finished joinAsController with seshCode={}, quizxelPlayer={}, state={}", seshCode, quizxelPlayer,  controllerState);
             return controllerState;
         } catch (Exception e) {
-            log.warn("Finished joinAsController with seshCode={}, quizxelPlayer={}, reconnectToken={}, error={}", seshCode, quizxelPlayer,  e.toString());
+            log.warn("Finished joinAsController with seshCode={}, quizxelPlayer={}, error={}", seshCode, quizxelPlayer,  e.toString());
             throw e;
         }
 

@@ -31,7 +31,7 @@ class SeshFactoryImplTest {
         expected.setSeshCode(seshCode);
         expected.setShowAnswer(false);
         expected.setShowQuestion(false);
-        expected.setBuzzedPlayerId(null);
+        expected.setBuzzedPlayerName(null);
         expected.setActive(true);
         expected.setPlayers(new ArrayList<>());
         expected.setCurrentQuestionIndex(0L);

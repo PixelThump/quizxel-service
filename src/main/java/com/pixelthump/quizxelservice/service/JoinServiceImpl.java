@@ -92,7 +92,7 @@ public class JoinServiceImpl implements JoinService {
             hostState.setCurrentQuestion(currentQuestion);
             hostState.setShowQuestion(state.getShowQuestion());
             hostState.setShowAnswer(state.getShowAnswer());
-            hostState.setBuzzedPlayerId(state.getBuzzedPlayerId());
+            hostState.setBuzzedPlayerId(state.getBuzzedPlayerName());
         }
 
         return hostState;

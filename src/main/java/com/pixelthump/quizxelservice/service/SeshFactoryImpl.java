@@ -25,7 +25,7 @@ public class SeshFactoryImpl implements SeshFactory{
         sesh.setSeshCode(seshCode);
         sesh.setShowAnswer(false);
         sesh.setShowQuestion(false);
-        sesh.setBuzzedPlayerId(null);
+        sesh.setBuzzedPlayerName(null);
         sesh.setActive(true);
         sesh.setPlayers(new ArrayList<>());
         sesh.setCurrentQuestionIndex(0L);

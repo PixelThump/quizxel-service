@@ -1,6 +1,7 @@
 package com.pixelthump.quizxelservice.rest;
 import com.pixelthump.quizxelservice.Application;
 import com.pixelthump.quizxelservice.rest.model.*;
+import com.pixelthump.quizxelservice.rest.model.command.QuizxelCommand;
 import com.pixelthump.quizxelservice.rest.model.state.QuizxelControllerState;
 import com.pixelthump.quizxelservice.rest.model.state.QuizxelHostState;
 import com.pixelthump.quizxelservice.service.GameLogicService;

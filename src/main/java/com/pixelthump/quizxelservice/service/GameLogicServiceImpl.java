@@ -112,17 +112,17 @@ public class GameLogicServiceImpl implements GameLogicService {
 
     private void processLobbyStageCommand(State state, Command command) {
 
-        if (isVip(state, command.getPlayerId()) && command.getType().equals("startSesh")) {
+        if (isVip(state, command.getPlayerName()) && command.getType().equals("startSesh")) {
 
             processStartSeshCommand(state);
 
-        } else if ((isVip(state, command.getPlayerId()) || !hasVip(state)) && command.getType().equals("makeVip")) {
+        } else if ((isVip(state, command.getPlayerName()) || !hasVip(state)) && command.getType().equals("makeVip")) {
 
-            processMakeVipCommand(state, command.getPlayerId(), command.getBody());
+            processMakeVipCommand(state, command.getPlayerName(), command.getBody());
 
         } else if (command.getType().equals("changeIcon")) {
 
-            processChangeIconCommand(state, command.getPlayerId(), command.getBody());
+            processChangeIconCommand(state, command.getPlayerName(), command.getBody());
 
         } else {
 
@@ -130,23 +130,23 @@ public class GameLogicServiceImpl implements GameLogicService {
         }
     }
 
-    private void processMakeVipCommand(State state, String executerId, String targetId) {
+    private void processMakeVipCommand(State state, String executerName, String targetName) {
 
-        boolean targetIsValid = state.getPlayers().stream().anyMatch(player -> player.getPlayerId().equals(targetId));
+        boolean targetIsValid = state.getPlayers().stream().anyMatch(player -> player.getPlayerId().getPlayerName().equals(targetName));
         if (!targetIsValid) {
 
             return;
         }
-        state.getPlayers().stream().filter(player -> player.getPlayerId().equals(executerId)).forEach(player -> player.setVip(false));
-        state.getPlayers().stream().filter(player -> player.getPlayerId().equals(targetId)).forEach(player -> player.setVip(true));
+        state.getPlayers().stream().filter(player -> player.getPlayerId().getPlayerName().equals(executerName)).forEach(player -> player.setVip(false));
+        state.getPlayers().stream().filter(player -> player.getPlayerId().getPlayerName().equals(targetName)).forEach(player -> player.setVip(true));
     }
 
-    private void processChangeIconCommand(State state, String playerId, String body) {
+    private void processChangeIconCommand(State state, String playerName, String body) {
 
         if (Arrays.stream(PlayerIconName.values()).noneMatch(playerIconName -> playerIconName.name().equals(body))) {
             return;
         }
-        List<Player> players = state.getPlayers().stream().filter(player -> player.getPlayerId().equals(playerId)).toList();
+        List<Player> players = state.getPlayers().stream().filter(player -> player.getPlayerId().getPlayerName().equals(playerName)).toList();
         if (players.size() != 1) {
             return;
         }
@@ -178,7 +178,7 @@ public class GameLogicServiceImpl implements GameLogicService {
 
     private void processNextQuestionCommand(State state, Command command) {
 
-        if (!isVip(state, command.getPlayerId())) return;
+        if (!isVip(state, command.getPlayerName())) return;
         if ("next".equals(command.getBody())) state.nextQuestion();
         if ("prev".equals(command.getBody())) state.prevQuestion();
 
@@ -188,14 +188,14 @@ public class GameLogicServiceImpl implements GameLogicService {
 
     private void processShowQuestionCommand(State state, Command command) {
 
-        if (!isVip(state, command.getPlayerId())) return;
+        if (!isVip(state, command.getPlayerName())) return;
         boolean showQuestion = command.getBody().equals("true");
         state.setShowQuestion(showQuestion);
     }
 
     private void processShowAnswerCommand(State state, Command command) {
 
-        if (!isVip(state, command.getPlayerId())) return;
+        if (!isVip(state, command.getPlayerName())) return;
         boolean showAnswer = command.getBody().equals("true");
         state.setShowAnswer(showAnswer);
         if (showAnswer) state.setShowQuestion(true);
@@ -203,14 +203,14 @@ public class GameLogicServiceImpl implements GameLogicService {
 
     private void processBuzzerCommand(State state, Command command) {
 
-        if (!isVip(state, command.getPlayerId()) && isBuzzed(state)) return;
-        if (!isVip(state, command.getPlayerId()) && !isBuzzed(state)) state.setBuzzedPlayerId(command.getPlayerId());
-        if (isVip(state, command.getPlayerId())) state.setBuzzedPlayerId(command.getBody());
+        if (!isVip(state, command.getPlayerName()) && isBuzzed(state)) return;
+        if (!isVip(state, command.getPlayerName()) && !isBuzzed(state)) state.setBuzzedPlayerName(command.getPlayerName());
+        if (isVip(state, command.getPlayerName())) state.setBuzzedPlayerName(command.getBody());
     }
 
     private void processFreeBuzzerCommand(State state, Command command) {
 
-        if (!isVip(state, command.getPlayerId()) || !isBuzzed(state)) return;
+        if (!isVip(state, command.getPlayerName()) || !isBuzzed(state)) return;
         String commandBody = command.getBody();
         if (commandBody == null) {
             freeBuzzer(state);
@@ -228,7 +228,7 @@ public class GameLogicServiceImpl implements GameLogicService {
         List<Player> players = state.getPlayers();
         players.parallelStream()
                 // @formatter:off
-                .filter(player -> !player.getPlayerId().equals(state.getBuzzedPlayerId()))
+                .filter(player -> !player.getPlayerId().getPlayerName().equals(state.getBuzzedPlayerName()))
                 .forEach(player -> player.addPoints(1));
                 // @formatter:on
         freeBuzzer(state);
@@ -241,7 +241,7 @@ public class GameLogicServiceImpl implements GameLogicService {
         int pointsToAward = players.size() - 2;
         players.parallelStream()
                 // @formatter:off
-                .filter(player -> player.getPlayerId().equals(state.getBuzzedPlayerId()))
+                .filter(player -> player.getPlayerId().getPlayerName().equals(state.getBuzzedPlayerName()))
                 .forEach(player -> player.addPoints(pointsToAward));
                 // @formatter:on
         freeBuzzer(state);
@@ -249,12 +249,12 @@ public class GameLogicServiceImpl implements GameLogicService {
 
     private void freeBuzzer(State state) {
 
-        state.setBuzzedPlayerId(null);
+        state.setBuzzedPlayerName(null);
     }
 
     private boolean isBuzzed(State state) {
 
-        return state.getBuzzedPlayerId() != null;
+        return state.getBuzzedPlayerName() != null;
     }
 
     private static boolean hasVip(State state) {
@@ -262,9 +262,9 @@ public class GameLogicServiceImpl implements GameLogicService {
         return state.getPlayers().stream().anyMatch(Player::getVip);
     }
 
-    private static boolean isVip(State state, String playerId) {
+    private static boolean isVip(State state, String playerName) {
 
-        return state.getPlayers().stream().anyMatch(player -> player.getPlayerId().equals(playerId) && player.getVip());
+        return state.getPlayers().stream().anyMatch(player -> player.getPlayerId().getPlayerName().equals(playerName) && player.getVip());
     }
 
     private void broadcastState(State state) {
@@ -307,7 +307,7 @@ public class GameLogicServiceImpl implements GameLogicService {
             hostState.setCurrentQuestion(currentQuestion);
             hostState.setShowQuestion(state.getShowQuestion());
             hostState.setShowAnswer(state.getShowAnswer());
-            hostState.setBuzzedPlayerId(state.getBuzzedPlayerId());
+            hostState.setBuzzedPlayerId(state.getBuzzedPlayerName());
         }
 
         return hostState;

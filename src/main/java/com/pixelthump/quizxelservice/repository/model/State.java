@@ -28,8 +28,8 @@ public class State implements Serializable {
     private List<Player> players = new ArrayList<>();
     @Column(name = "current_question_index")
     private Long currentQuestionIndex;
-    @Column(name = "buzzed_player_id")
-    private String buzzedPlayerId;
+    @Column(name = "buzzed_player_name")
+    private String buzzedPlayerName;
     @Column(name = "max_player", nullable = false)
     private Long maxPlayer;
     @Column(name = "active", nullable = false)
