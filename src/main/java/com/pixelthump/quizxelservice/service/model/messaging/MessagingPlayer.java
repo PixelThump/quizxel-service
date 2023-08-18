@@ -1,5 +1,5 @@
 package com.pixelthump.quizxelservice.service.model.messaging;
-import com.pixelthump.quizxelservice.repository.model.PlayerIconName;
+import com.pixelthump.quizxelservice.repository.model.player.PlayerIconName;
 import lombok.Data;
 
 @Data

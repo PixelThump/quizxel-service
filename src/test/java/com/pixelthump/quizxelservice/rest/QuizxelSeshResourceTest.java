@@ -1,9 +1,6 @@
 package com.pixelthump.quizxelservice.rest;
 import com.pixelthump.quizxelservice.Application;
-import com.pixelthump.quizxelservice.rest.model.QuizxelCommand;
-import com.pixelthump.quizxelservice.rest.model.QuizxelPlayer;
-import com.pixelthump.quizxelservice.rest.model.QuizxelPlayerIconName;
-import com.pixelthump.quizxelservice.rest.model.QuizxelSeshInfo;
+import com.pixelthump.quizxelservice.rest.model.*;
 import com.pixelthump.quizxelservice.rest.model.state.QuizxelControllerState;
 import com.pixelthump.quizxelservice.rest.model.state.QuizxelHostState;
 import com.pixelthump.quizxelservice.service.GameLogicService;
@@ -123,8 +120,8 @@ class QuizxelSeshResourceTest {
     void joinAsController_existingSesh_shouldCallGameLogicServiceAndReturnState() {
 
         ControllerState state = new ControllerState();
-        when(joinService.joinAsController(eq(existingSeshCode), any(), any())).thenReturn(state);
-        QuizxelControllerState result = seshResource.joinAsController(existingSeshCode, null, new QuizxelPlayer("abcd", "abcd", false, 0L, QuizxelPlayerIconName.BASIC));
+        when(joinService.joinAsController(eq(existingSeshCode), any())).thenReturn(state);
+        QuizxelControllerState result = seshResource.joinAsController(existingSeshCode, new QuizxelPlayer(new QuizxelPlayerId("abcd", existingSeshCode), false, 0L, QuizxelPlayerIconName.BASIC));
         QuizxelControllerState expected = new QuizxelControllerState();
         assertEquals(expected, result);
     }
@@ -133,8 +130,8 @@ class QuizxelSeshResourceTest {
     void joinAsHost_existingSesh_shouldCallGameLogicServiceAndReturnState() {
 
         HostState state = new HostState();
-        when(joinService.joinAsHost(eq(existingSeshCode), any(), any())).thenReturn(state);
-        QuizxelHostState result = seshResource.joinAsHost(existingSeshCode, null, new QuizxelPlayer("abcd", "abcd", false, 0L, QuizxelPlayerIconName.BASIC));
+        when(joinService.joinAsHost(existingSeshCode)).thenReturn(state);
+        QuizxelHostState result = seshResource.joinAsHost(existingSeshCode, null);
         QuizxelHostState expected = new QuizxelHostState();
         assertEquals(expected, result);
     }

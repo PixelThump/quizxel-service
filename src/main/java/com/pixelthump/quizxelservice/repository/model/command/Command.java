@@ -1,5 +1,4 @@
 package com.pixelthump.quizxelservice.repository.model.command;
-import com.pixelthump.quizxelservice.repository.model.CommandId;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;

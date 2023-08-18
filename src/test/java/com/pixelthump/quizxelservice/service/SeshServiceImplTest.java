@@ -2,7 +2,6 @@ package com.pixelthump.quizxelservice.service;
 import com.pixelthump.quizxelservice.Application;
 import com.pixelthump.quizxelservice.repository.CommandRespository;
 import com.pixelthump.quizxelservice.repository.StateRepository;
-import com.pixelthump.quizxelservice.repository.model.CommandId;
 import com.pixelthump.quizxelservice.repository.model.State;
 import com.pixelthump.quizxelservice.repository.model.command.Command;
 import com.pixelthump.quizxelservice.service.model.SeshInfo;

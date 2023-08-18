@@ -6,10 +6,8 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class QuizxelPlayer {
+public class QuizxelPlayerId {
 
-    private QuizxelPlayerId playerId;
-    private Boolean vip;
-    private Long points;
-    private QuizxelPlayerIconName playerIconName;
+    private String playerName;
+    private String seshCode;
 }

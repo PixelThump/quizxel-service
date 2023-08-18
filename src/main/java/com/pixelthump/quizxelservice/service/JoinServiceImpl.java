@@ -1,8 +1,8 @@
 package com.pixelthump.quizxelservice.service;
 import com.pixelthump.quizxelservice.repository.PlayerRepository;
 import com.pixelthump.quizxelservice.repository.StateRepository;
-import com.pixelthump.quizxelservice.repository.model.Player;
-import com.pixelthump.quizxelservice.repository.model.PlayerIconName;
+import com.pixelthump.quizxelservice.repository.model.player.Player;
+import com.pixelthump.quizxelservice.repository.model.player.PlayerIconName;
 import com.pixelthump.quizxelservice.repository.model.SeshStage;
 import com.pixelthump.quizxelservice.repository.model.State;
 import com.pixelthump.quizxelservice.repository.model.question.Question;
@@ -14,8 +14,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 import org.springframework.web.server.ResponseStatusException;
-
-import java.util.List;
 
 @Component
 @Log4j2
@@ -34,20 +32,10 @@ public class JoinServiceImpl implements JoinService {
     }
 
     @Override
-    public ControllerState joinAsController(String seshCode, Player player, String reconnectToken) {
-
-        if (reconnectToken == null || reconnectToken.equals("null")) {
-
-            return joinFirstTimeAsController(seshCode, player);
-        }
-        return reconnectAsController(seshCode, player, reconnectToken);
-    }
-
-    private ControllerState joinFirstTimeAsController(String seshCode, Player player) {
-
+    public ControllerState joinAsController(String seshCode, Player player) {
         State state = seshService.getSesh(seshCode);
         boolean seshIsFull = state.getPlayers().size() == state.getMaxPlayer();
-        boolean playerAlreadyJoined = playerRepository.existsByState_SeshCodeAndPlayerName(seshCode, player.getPlayerName());
+        boolean playerAlreadyJoined = playerRepository.existsByPlayerId_PlayerNameAndPlayerId_SeshCode(seshCode, player.getPlayerId().getPlayerName());
         if ((seshIsFull || playerAlreadyJoined)) {
 
             throw new ResponseStatusException(HttpStatus.CONFLICT);
@@ -64,46 +52,8 @@ public class JoinServiceImpl implements JoinService {
         return extractControllerState(state);
     }
 
-    private ControllerState reconnectAsController(String seshCode, Player player, String reconnectToken) {
-
-        State state = seshService.getSesh(seshCode);
-
-        if (!isReconnectValid(player, reconnectToken, state.getPlayers())) {
-            return joinFirstTimeAsController(seshCode, player);
-        }
-        state.setHasChanged(true);
-        stateRepository.save(state);
-        return extractControllerState(state);
-    }
-
-    private static boolean isReconnectValid(Player player, String reconnectToken, List<Player> players) {
-        //  @formatter:off
-        return players.parallelStream()
-                .anyMatch(statePlayer ->
-                        statePlayer.getPlayerId().equals(reconnectToken) && statePlayer.getPlayerName().equals(player.getPlayerName()));
-        //  @formatter:on
-    }
-
     @Override
-    public HostState joinAsHost(String seshCode, String socketId, String reconnectToken) {
-
-        if (reconnectToken != null) {
-            return reconnectAsHost(seshCode, reconnectToken);
-        }
-        return joinFirstTimeAsHost(seshCode, socketId);
-    }
-
-    private HostState reconnectAsHost(String seshCode, String reconnectToken) {
-
-        State state = seshService.getSesh(seshCode);
-        String hostId = state.getHostId();
-        if (!hostId.equals(reconnectToken)) {
-            throw new ResponseStatusException(HttpStatus.FORBIDDEN);
-        }
-        return extractHostState(state);
-    }
-
-    private HostState joinFirstTimeAsHost(String seshCode, String socketId) {
+    public HostState joinAsHost(String seshCode) {
 
         State state = seshService.getSesh(seshCode);
         String hostId = state.getHostId();
@@ -111,11 +61,11 @@ public class JoinServiceImpl implements JoinService {
 
             throw new ResponseStatusException(HttpStatus.CONFLICT);
         }
-        state.setHostId(socketId);
         state.setHasChanged(true);
         stateRepository.save(state);
         return extractHostState(state);
     }
+
 
     private ControllerState extractControllerState(State state) {
 

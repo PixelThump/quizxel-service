@@ -1,8 +1,8 @@
 package com.pixelthump.quizxelservice.service;
 import com.pixelthump.quizxelservice.repository.CommandRespository;
 import com.pixelthump.quizxelservice.repository.StateRepository;
-import com.pixelthump.quizxelservice.repository.model.Player;
-import com.pixelthump.quizxelservice.repository.model.PlayerIconName;
+import com.pixelthump.quizxelservice.repository.model.player.Player;
+import com.pixelthump.quizxelservice.repository.model.player.PlayerIconName;
 import com.pixelthump.quizxelservice.repository.model.SeshStage;
 import com.pixelthump.quizxelservice.repository.model.State;
 import com.pixelthump.quizxelservice.repository.model.command.Command;

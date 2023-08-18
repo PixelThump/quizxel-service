@@ -1,5 +1,5 @@
 package com.pixelthump.quizxelservice.service.model.state;
-import com.pixelthump.quizxelservice.repository.model.Player;
+import com.pixelthump.quizxelservice.repository.model.player.Player;
 import com.pixelthump.quizxelservice.repository.model.SeshStage;
 import com.pixelthump.quizxelservice.repository.model.question.Question;
 import lombok.Data;

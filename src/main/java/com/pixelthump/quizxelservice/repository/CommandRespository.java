@@ -1,6 +1,6 @@
 package com.pixelthump.quizxelservice.repository;
 import com.pixelthump.quizxelservice.repository.model.command.Command;
-import com.pixelthump.quizxelservice.repository.model.CommandId;
+import com.pixelthump.quizxelservice.repository.model.command.CommandId;
 import jakarta.transaction.Transactional;
 import org.springframework.data.jpa.repository.JpaRepository;
 

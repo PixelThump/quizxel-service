@@ -1,4 +1,5 @@
-package com.pixelthump.quizxelservice.repository.model;
+package com.pixelthump.quizxelservice.repository.model.command;
+import com.pixelthump.quizxelservice.repository.model.State;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Embeddable;
 import jakarta.persistence.JoinColumn;
@@ -9,6 +10,7 @@ import lombok.Setter;
 
 import java.io.Serializable;
 import java.time.LocalDateTime;
+import java.util.Objects;
 
 @Getter
 @Setter
@@ -25,5 +27,19 @@ public class CommandId implements Serializable {
 
         this.state = state;
         this.timestamp = LocalDateTime.now();
+    }
+
+    @Override
+    public boolean equals(Object o) {
+
+        if (this == o) return true;
+        if (!(o instanceof CommandId commandId)) return false;
+        return Objects.equals(timestamp, commandId.timestamp) && Objects.equals(state, commandId.state);
+    }
+
+    @Override
+    public int hashCode() {
+
+        return Objects.hash(timestamp, state);
     }
 }
