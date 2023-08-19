@@ -8,4 +8,5 @@ import lombok.EqualsAndHashCode;
 public class AbstractControllerState extends AbstractServiceState {
 
     private Boolean isVip;
+    private String playerName;
 }

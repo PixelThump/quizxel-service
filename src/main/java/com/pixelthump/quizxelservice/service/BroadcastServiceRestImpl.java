@@ -93,6 +93,8 @@ public class BroadcastServiceRestImpl implements BroadcastService {
         for (Player player : state.getPlayers()) {
 
             AbstractControllerState controllerState = getControllerState(player, state);
+            controllerState.setCurrentStage(state.getSeshStage());
+            controllerState.setSeshCode(state.getSeshCode());
             map.put(player.getPlayerId().getPlayerName(), controllerState);
         }
         return map;
@@ -110,8 +112,7 @@ public class BroadcastServiceRestImpl implements BroadcastService {
         }
 
         controllerState.setIsVip(player.getVip());
-        controllerState.setCurrentStage(state.getSeshStage());
-        controllerState.setSeshCode(state.getSeshCode());
+        controllerState.setPlayerName(player.getPlayerId().getPlayerName());
         return controllerState;
     }
 
