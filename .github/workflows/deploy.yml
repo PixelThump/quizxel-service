@@ -47,7 +47,7 @@ jobs:
         uses: mr-smithers-excellent/docker-build-push@v5
         with:
           image: ${{env.OWNER_LC}}/${{ github.event.repository.name }}
-          tags: dev
+          tags: v1_0_0
           registry: ghcr.io
           dockerfile: Dockerfile
           username: ${{ github.repository_owner }}
