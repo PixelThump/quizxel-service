@@ -164,6 +164,7 @@ public class BroadcastServiceRestImpl implements BroadcastService {
         messagingPlayer.setPlayerId(player.getPlayerId());
         messagingPlayer.setPoints(player.getPoints());
         messagingPlayer.setVip(player.getVip());
+        messagingPlayer.setPlayerIconName(player.getPlayerIconName());
         return messagingPlayer;
     }
 
