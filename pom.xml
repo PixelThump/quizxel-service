@@ -10,7 +10,7 @@
     </parent>
     <groupId>com.pixelthump</groupId>
     <artifactId>quizxel-service</artifactId>
-    <version>0.1.0-SNAPSHOT</version>
+    <version>1.0.0</version>
     <name>Quizxel Service</name>
     <description>This is the service containing the logic for the game quizxel</description>
     <properties>
