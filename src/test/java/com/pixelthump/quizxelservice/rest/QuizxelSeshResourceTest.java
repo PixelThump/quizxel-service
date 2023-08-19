@@ -1,15 +1,18 @@
 package com.pixelthump.quizxelservice.rest;
 import com.pixelthump.quizxelservice.Application;
-import com.pixelthump.quizxelservice.rest.model.*;
+import com.pixelthump.quizxelservice.rest.model.QuizxelPlayer;
+import com.pixelthump.quizxelservice.rest.model.QuizxelPlayerIconName;
+import com.pixelthump.quizxelservice.rest.model.QuizxelPlayerId;
+import com.pixelthump.quizxelservice.rest.model.QuizxelSeshInfo;
 import com.pixelthump.quizxelservice.rest.model.command.QuizxelCommand;
-import com.pixelthump.quizxelservice.rest.model.state.QuizxelControllerState;
-import com.pixelthump.quizxelservice.rest.model.state.QuizxelHostState;
 import com.pixelthump.quizxelservice.service.GameLogicService;
 import com.pixelthump.quizxelservice.service.JoinService;
 import com.pixelthump.quizxelservice.service.SeshService;
 import com.pixelthump.quizxelservice.service.model.SeshInfo;
-import com.pixelthump.quizxelservice.service.model.state.ControllerState;
-import com.pixelthump.quizxelservice.service.model.state.HostState;
+import com.pixelthump.quizxelservice.service.model.state.controller.AbstractControllerState;
+import com.pixelthump.quizxelservice.service.model.state.controller.ControllerPlayerMainState;
+import com.pixelthump.quizxelservice.service.model.state.host.AbstractHostState;
+import com.pixelthump.quizxelservice.service.model.state.host.HostMainState;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -120,20 +123,20 @@ class QuizxelSeshResourceTest {
     @Test
     void joinAsController_existingSesh_shouldCallGameLogicServiceAndReturnState() {
 
-        ControllerState state = new ControllerState();
+        AbstractControllerState state = new ControllerPlayerMainState();
         when(joinService.joinAsController(eq(existingSeshCode), any())).thenReturn(state);
-        QuizxelControllerState result = seshResource.joinAsController(existingSeshCode, new QuizxelPlayer(new QuizxelPlayerId("abcd", existingSeshCode), false, 0L, QuizxelPlayerIconName.BASIC));
-        QuizxelControllerState expected = new QuizxelControllerState();
+        AbstractControllerState result = seshResource.joinAsController(existingSeshCode, new QuizxelPlayer(new QuizxelPlayerId("abcd", existingSeshCode), false, 0L, QuizxelPlayerIconName.BASIC));
+        AbstractControllerState expected = new ControllerPlayerMainState();
         assertEquals(expected, result);
     }
 
     @Test
     void joinAsHost_existingSesh_shouldCallGameLogicServiceAndReturnState() {
 
-        HostState state = new HostState();
+        AbstractHostState state = new HostMainState();
         when(joinService.joinAsHost(existingSeshCode)).thenReturn(state);
-        QuizxelHostState result = seshResource.joinAsHost(existingSeshCode, null);
-        QuizxelHostState expected = new QuizxelHostState();
+        AbstractHostState result = seshResource.joinAsHost(existingSeshCode, null);
+        AbstractHostState expected = new HostMainState();
         assertEquals(expected, result);
     }
 }

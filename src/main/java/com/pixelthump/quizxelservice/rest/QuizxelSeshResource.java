@@ -4,13 +4,11 @@ import com.pixelthump.quizxelservice.repository.model.player.Player;
 import com.pixelthump.quizxelservice.rest.model.QuizxelPlayer;
 import com.pixelthump.quizxelservice.rest.model.QuizxelSeshInfo;
 import com.pixelthump.quizxelservice.rest.model.command.QuizxelCommand;
-import com.pixelthump.quizxelservice.rest.model.state.QuizxelControllerState;
-import com.pixelthump.quizxelservice.rest.model.state.QuizxelHostState;
 import com.pixelthump.quizxelservice.service.JoinService;
 import com.pixelthump.quizxelservice.service.SeshService;
 import com.pixelthump.quizxelservice.service.model.SeshInfo;
-import com.pixelthump.quizxelservice.service.model.state.ControllerState;
-import com.pixelthump.quizxelservice.service.model.state.HostState;
+import com.pixelthump.quizxelservice.service.model.state.controller.AbstractControllerState;
+import com.pixelthump.quizxelservice.service.model.state.host.AbstractHostState;
 import lombok.extern.log4j.Log4j2;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -78,13 +76,12 @@ public class QuizxelSeshResource {
 
     @PostMapping("/{seshCode}/players/controller")
     @ResponseBody
-    public QuizxelControllerState joinAsController(@PathVariable String seshCode, @RequestBody QuizxelPlayer quizxelPlayer) {
+    public AbstractControllerState joinAsController(@PathVariable String seshCode, @RequestBody QuizxelPlayer quizxelPlayer) {
 
         try {
             log.info("Started joinAsController with seshCode={}, quizxelPlayer={}", seshCode, quizxelPlayer);
             Player player = modelMapper.map(quizxelPlayer, Player.class);
-            ControllerState state = joinService.joinAsController(seshCode, player);
-            QuizxelControllerState controllerState = modelMapper.map(state, QuizxelControllerState.class);
+            AbstractControllerState controllerState = joinService.joinAsController(seshCode, player);
             log.info("Finished joinAsController with seshCode={}, quizxelPlayer={}, state={}", seshCode, quizxelPlayer, controllerState);
             return controllerState;
         } catch (Exception e) {
@@ -96,12 +93,11 @@ public class QuizxelSeshResource {
 
     @PostMapping(value = "/{seshCode}/players/host")
     @ResponseBody
-    public QuizxelHostState joinAsHost(@PathVariable String seshCode, @RequestParam(required = false) String reconnectToken) {
+    public AbstractHostState joinAsHost(@PathVariable String seshCode, @RequestParam(required = false) String reconnectToken) {
 
         log.info("Started joinAsHost with seshCode={}, reconnectToken={}", seshCode, reconnectToken);
         try {
-            HostState state = joinService.joinAsHost(seshCode);
-            QuizxelHostState hostState = modelMapper.map(state, QuizxelHostState.class);
+            AbstractHostState hostState = joinService.joinAsHost(seshCode);
             log.info("Finished joinAsHost with seshCode={},  reconnectToken={} state={}", seshCode, reconnectToken, hostState);
             return hostState;
         } catch (Exception e) {

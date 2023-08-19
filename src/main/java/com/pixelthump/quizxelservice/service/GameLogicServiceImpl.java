@@ -1,18 +1,13 @@
 package com.pixelthump.quizxelservice.service;
 import com.pixelthump.quizxelservice.repository.CommandRespository;
 import com.pixelthump.quizxelservice.repository.StateRepository;
-import com.pixelthump.quizxelservice.repository.model.player.Player;
-import com.pixelthump.quizxelservice.repository.model.player.PlayerIconName;
 import com.pixelthump.quizxelservice.repository.model.SeshStage;
 import com.pixelthump.quizxelservice.repository.model.State;
 import com.pixelthump.quizxelservice.repository.model.command.Command;
-import com.pixelthump.quizxelservice.repository.model.question.Question;
-import com.pixelthump.quizxelservice.service.model.messaging.SeshUpdate;
-import com.pixelthump.quizxelservice.service.model.state.ControllerState;
-import com.pixelthump.quizxelservice.service.model.state.HostState;
+import com.pixelthump.quizxelservice.repository.model.player.Player;
+import com.pixelthump.quizxelservice.repository.model.player.PlayerIconName;
 import jakarta.transaction.Transactional;
 import lombok.extern.log4j.Log4j2;
-import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
@@ -269,48 +264,13 @@ public class GameLogicServiceImpl implements GameLogicService {
 
     private void broadcastState(State state) {
 
-        HostState host = extractHostState(state);
-        ControllerState controller = extractControllerState(state);
-        SeshUpdate seshUpdate = new SeshUpdate(host, controller);
 
         try {
-            broadcastService.broadcastSeshUpdate(seshUpdate, state.getSeshCode());
+            broadcastService.broadcastSeshUpdate(state);
         } catch (NullPointerException e) {
 
             log.error("broadcastState has failed due to stomp session being null.");
         }
 
     }
-
-    private ControllerState extractControllerState(State state) {
-
-        HostState hostState = extractHostState(state);
-        ModelMapper modelMapper = new ModelMapper();
-        return modelMapper.map(hostState, ControllerState.class);
-    }
-
-    private HostState extractHostState(State state) {
-
-        HostState hostState = new HostState();
-        hostState.setPlayers(state.getPlayers());
-        hostState.setSeshCode(state.getSeshCode());
-        hostState.setCurrentStage(state.getSeshStage());
-
-        if (state.getSeshStage() == SeshStage.LOBBY) {
-
-            hostState.setMaxPlayers(state.getMaxPlayer());
-            hostState.setHasVip(hasVip(state));
-
-        } else if (state.getSeshStage() == SeshStage.MAIN) {
-
-            Question<?> currentQuestion = state.getSelectedQuestionPack().getQuestions().get(state.getCurrentQuestionIndex().intValue());
-            hostState.setCurrentQuestion(currentQuestion);
-            hostState.setShowQuestion(state.getShowQuestion());
-            hostState.setShowAnswer(state.getShowAnswer());
-            hostState.setBuzzedPlayerId(state.getBuzzedPlayerName());
-        }
-
-        return hostState;
-    }
-
 }
