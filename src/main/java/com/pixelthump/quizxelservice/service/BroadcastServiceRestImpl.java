@@ -37,6 +37,7 @@ public class BroadcastServiceRestImpl implements BroadcastService {
         log.info("Broadcasting with state={}", state);
         String apiUrl = backendBasePath + "/messaging/seshs/" + state.getSeshCode() + "/broadcasts/different";
         Map<String, AbstractServiceState> message = getStateMessage(state);
+        log.info("Sending out broadcast={}", message);
         restTemplate.postForEntity(apiUrl, message, String.class);
     }
 
@@ -93,8 +94,6 @@ public class BroadcastServiceRestImpl implements BroadcastService {
         for (Player player : state.getPlayers()) {
 
             AbstractControllerState controllerState = getControllerState(player, state);
-            controllerState.setCurrentStage(state.getSeshStage());
-            controllerState.setSeshCode(state.getSeshCode());
             map.put(player.getPlayerId().getPlayerName(), controllerState);
         }
         return map;
@@ -111,6 +110,8 @@ public class BroadcastServiceRestImpl implements BroadcastService {
             controllerState = getControllerMainState(player, state);
         }
 
+        controllerState.setCurrentStage(state.getSeshStage());
+        controllerState.setSeshCode(state.getSeshCode());
         controllerState.setIsVip(player.getVip());
         controllerState.setPlayerName(player.getPlayerId().getPlayerName());
         return controllerState;
