@@ -1,9 +1,8 @@
 package com.pixelthump.quizxelservice.service;
-import com.pixelthump.quizxelservice.repository.model.player.Player;
 import com.pixelthump.quizxelservice.repository.model.question.Question;
-import com.pixelthump.quizxelservice.service.model.messaging.*;
+import com.pixelthump.quizxelservice.service.model.messaging.MessagingQuestion;
+import com.pixelthump.quizxelservice.service.model.messaging.SeshUpdate;
 import com.pixelthump.quizxelservice.service.model.state.ControllerState;
-import com.pixelthump.quizxelservice.service.model.state.HostState;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -11,7 +10,6 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 @Component
@@ -40,14 +38,13 @@ public class BroadcastServiceRestImpl implements BroadcastService {
 
         Map<String, Object> controller = new HashMap<>();
         // @formatter:off
-        List<MessagingPlayer> hostPlayers = controllerState.getPlayers().parallelStream().map(this::convertToMessagingPlayer).toList();
         // @formatter:on
         Question<?> currentQuestion = controllerState.getCurrentQuestion();
         MessagingQuestion<?> messagingQuestion = null;
         if (currentQuestion != null) {
             messagingQuestion = new MessagingQuestion<>(currentQuestion.getQuestionpack().getPackName(), currentQuestion.getText(), currentQuestion.getType(), currentQuestion.getAnswer());
         }
-        controller.put("players", hostPlayers);
+        controller.put("players", controllerState.getPlayers());
         controller.put("seshCode", controllerState.getSeshCode());
         controller.put("currentStage", controllerState.getCurrentStage());
         controller.put("maxPlayers", controllerState.getMaxPlayers());
@@ -58,37 +55,4 @@ public class BroadcastServiceRestImpl implements BroadcastService {
         controller.put("buzzedPlayerId", controllerState.getBuzzedPlayerId());
         return controller;
     }
-
-    private Map<String, Object> getHostMap(HostState hostState) {
-
-        Map<String, Object> host = new HashMap<>();
-        // @formatter:off
-        List<MessagingPlayer> hostPlayers = hostState.getPlayers().parallelStream().map(this::convertToMessagingPlayer).toList();
-        // @formatter:on
-        Question<?> currentQuestion = hostState.getCurrentQuestion();
-        MessagingQuestion<?> messagingQuestion = null;
-        if (currentQuestion != null) {
-            messagingQuestion = new MessagingQuestion<>(currentQuestion.getQuestionpack().getPackName(), currentQuestion.getText(), currentQuestion.getType(), currentQuestion.getAnswer());
-        }
-        host.put("players", hostPlayers);
-        host.put("seshCode", hostState.getSeshCode());
-        host.put("currentStage", hostState.getCurrentStage());
-        host.put("maxPlayers", hostState.getMaxPlayers());
-        host.put("hasVip", hostState.getHasVip());
-        host.put("currentQuestion", messagingQuestion);
-        host.put("showQuestion", hostState.getShowQuestion());
-        host.put("showAnswer", hostState.getShowAnswer());
-        host.put("buzzedPlayerId", hostState.getBuzzedPlayerId());
-        return host;
-    }
-
-    private MessagingPlayer convertToMessagingPlayer(Player player){
-
-        MessagingPlayer messagingPlayer = new MessagingPlayer();
-        messagingPlayer.setPlayerName(player.getPlayerId().getPlayerName());
-        messagingPlayer.setPoints(player.getPoints());
-        messagingPlayer.setVip(player.getVip());
-        return messagingPlayer;
-    }
-
 }
