@@ -3,6 +3,7 @@ import com.pixelthump.quizxelservice.repository.model.player.Player;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.ToString;
 import org.hibernate.Hibernate;
 
 import java.io.Serializable;
@@ -12,6 +13,7 @@ import java.util.Objects;
 
 @Getter
 @Setter
+@ToString
 @Entity
 public class State implements Serializable {
 
