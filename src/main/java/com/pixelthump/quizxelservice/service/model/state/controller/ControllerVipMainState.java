@@ -1,5 +1,5 @@
 package com.pixelthump.quizxelservice.service.model.state.controller;
-import com.pixelthump.quizxelservice.repository.model.question.Question;
+import com.pixelthump.quizxelservice.service.model.messaging.MessagingQuestion;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
@@ -7,7 +7,7 @@ import lombok.EqualsAndHashCode;
 @EqualsAndHashCode(callSuper = true)
 public class ControllerVipMainState extends AbstractControllerMainState {
 
-    private Question<?> currentQuestion;
+    private MessagingQuestion<?> currentQuestion;
     private Boolean showQuestion;
     private Boolean showAnswer;
 

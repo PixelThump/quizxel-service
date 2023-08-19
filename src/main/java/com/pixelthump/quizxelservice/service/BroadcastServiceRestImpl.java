@@ -2,7 +2,9 @@ package com.pixelthump.quizxelservice.service;
 import com.pixelthump.quizxelservice.repository.model.SeshStage;
 import com.pixelthump.quizxelservice.repository.model.State;
 import com.pixelthump.quizxelservice.repository.model.player.Player;
+import com.pixelthump.quizxelservice.repository.model.question.Question;
 import com.pixelthump.quizxelservice.service.model.messaging.MessagingPlayer;
+import com.pixelthump.quizxelservice.service.model.messaging.MessagingQuestion;
 import com.pixelthump.quizxelservice.service.model.state.AbstractServiceState;
 import com.pixelthump.quizxelservice.service.model.state.controller.*;
 import com.pixelthump.quizxelservice.service.model.state.host.AbstractHostState;
@@ -77,7 +79,9 @@ public class BroadcastServiceRestImpl implements BroadcastService {
         mainState.setBuzzedPlayerName(state.getBuzzedPlayerName());
         mainState.setShowAnswer(state.getShowAnswer());
         mainState.setShowQuestion(state.getShowQuestion());
-        mainState.setCurrentQuestion(state.getSelectedQuestionPack().getQuestions().get(state.getCurrentQuestionIndex().intValue()));
+        Question<?> currentQuestion = state.getSelectedQuestionPack().getQuestions().get(state.getCurrentQuestionIndex().intValue());
+        MessagingQuestion<?> currentMessagingQuestion = new MessagingQuestion<>(currentQuestion.getQuestionpack().getPackName(), currentQuestion.getText(), currentQuestion.getType(), currentQuestion.getAnswer());
+        mainState.setCurrentQuestion(currentMessagingQuestion);
         return mainState;
     }
 
@@ -139,7 +143,9 @@ public class BroadcastServiceRestImpl implements BroadcastService {
         ControllerVipMainState mainState = new ControllerVipMainState();
         mainState.setShowQuestion(state.getShowQuestion());
         mainState.setShowAnswer(state.getShowAnswer());
-        mainState.setCurrentQuestion(state.getSelectedQuestionPack().getQuestions().get(state.getCurrentQuestionIndex().intValue()));
+        Question<?> currentQuestion = state.getSelectedQuestionPack().getQuestions().get(state.getCurrentQuestionIndex().intValue());
+        MessagingQuestion<?> currentMessagingQuestion = new MessagingQuestion<>(currentQuestion.getQuestionpack().getPackName(), currentQuestion.getText(), currentQuestion.getType(), currentQuestion.getAnswer());
+        mainState.setCurrentQuestion(currentMessagingQuestion);
         mainState.setBuzzedPlayerName(state.getBuzzedPlayerName());
         return mainState;
     }
