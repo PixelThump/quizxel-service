@@ -14,7 +14,7 @@ public class QuizxelHostState {
     private SeshStage currentStage;
     private Long maxPlayers;
     private Boolean hasVip;
-    private Question currentQuestion;
+    private Question<?> currentQuestion;
     private Boolean showQuestion;
     private Boolean showAnswer;
     private String buzzedPlayerId;

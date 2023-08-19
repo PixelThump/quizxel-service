@@ -1,11 +1,10 @@
 package com.pixelthump.quizxelservice.service;
+import com.pixelthump.quizxelservice.repository.model.player.Player;
 import com.pixelthump.quizxelservice.repository.model.question.Question;
 import com.pixelthump.quizxelservice.service.model.messaging.*;
 import com.pixelthump.quizxelservice.service.model.state.ControllerState;
 import com.pixelthump.quizxelservice.service.model.state.HostState;
 import lombok.extern.log4j.Log4j2;
-import org.modelmapper.ModelMapper;
-import org.modelmapper.TypeToken;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
@@ -20,15 +19,13 @@ import java.util.Map;
 public class BroadcastServiceRestImpl implements BroadcastService {
 
     private final RestTemplate restTemplate;
-    private final ModelMapper modelMapper;
     @Value("${pixelthump.backend-basepath}")
     private String backendBasePath;
 
     @Autowired
-    public BroadcastServiceRestImpl(RestTemplate restTemplate, ModelMapper modelMapper) {
+    public BroadcastServiceRestImpl(RestTemplate restTemplate) {
 
         this.restTemplate = restTemplate;
-        this.modelMapper = modelMapper;
     }
 
     @Override
@@ -48,7 +45,7 @@ public class BroadcastServiceRestImpl implements BroadcastService {
 
         Map<String, Object> controller = new HashMap<>();
         // @formatter:off
-        List<MessagingPlayer> hostPlayers = modelMapper.map(controllerState.getPlayers(), new TypeToken<List<MessagingPlayer>>() {}.getType());
+        List<MessagingPlayer> hostPlayers = controllerState.getPlayers().parallelStream().map(this::convertToMessagingPlayer).toList();
         // @formatter:on
         Question<?> currentQuestion = controllerState.getCurrentQuestion();
         MessagingQuestion<?> messagingQuestion = null;
@@ -71,7 +68,7 @@ public class BroadcastServiceRestImpl implements BroadcastService {
 
         Map<String, Object> host = new HashMap<>();
         // @formatter:off
-        List<MessagingPlayer> hostPlayers = modelMapper.map(hostState.getPlayers(), new TypeToken<List<MessagingPlayer>>() {}.getType());
+        List<MessagingPlayer> hostPlayers = hostState.getPlayers().parallelStream().map(this::convertToMessagingPlayer).toList();
         // @formatter:on
         Question<?> currentQuestion = hostState.getCurrentQuestion();
         MessagingQuestion<?> messagingQuestion = null;
@@ -88,6 +85,15 @@ public class BroadcastServiceRestImpl implements BroadcastService {
         host.put("showAnswer", hostState.getShowAnswer());
         host.put("buzzedPlayerId", hostState.getBuzzedPlayerId());
         return host;
+    }
+
+    private MessagingPlayer convertToMessagingPlayer(Player player){
+
+        MessagingPlayer messagingPlayer = new MessagingPlayer();
+        messagingPlayer.setPlayerName(player.getPlayerId().getPlayerName());
+        messagingPlayer.setPoints(player.getPoints());
+        messagingPlayer.setVip(player.getVip());
+        return messagingPlayer;
     }
 
 }

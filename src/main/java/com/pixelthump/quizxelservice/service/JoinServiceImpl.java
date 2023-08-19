@@ -56,11 +56,11 @@ public class JoinServiceImpl implements JoinService {
     public HostState joinAsHost(String seshCode) {
 
         State state = seshService.getSesh(seshCode);
-        String hostId = state.getHostId();
-        if (hostId != null) {
+        if (state.isHostJoined()) {
 
             throw new ResponseStatusException(HttpStatus.CONFLICT);
         }
+        state.setHostJoined(true);
         state.setHasChanged(true);
         stateRepository.save(state);
         return extractHostState(state);

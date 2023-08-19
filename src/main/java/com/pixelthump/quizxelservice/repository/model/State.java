@@ -34,8 +34,8 @@ public class State implements Serializable {
     private Long maxPlayer;
     @Column(name = "active", nullable = false)
     private Boolean active = false;
-    @Column(name = "host_id")
-    private String hostId;
+    @Column(name = "host_joined")
+    private boolean hostJoined;
     @Column(name = "show_question")
     private Boolean showQuestion;
     @Column(name = "show_answer")

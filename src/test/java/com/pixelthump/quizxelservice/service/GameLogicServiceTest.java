@@ -47,7 +47,7 @@ class GameLogicServiceTest {
         String seshCode = "ABCD";
         State state = new State();
         state.setSeshCode(seshCode);
-        state.setHostId(seshCode);
+        state.setHostJoined(true);
         state.getPlayers().add(new Player());
         seshs.add(state);
         when(stateRepository.findByActive(true)).thenReturn(seshs);

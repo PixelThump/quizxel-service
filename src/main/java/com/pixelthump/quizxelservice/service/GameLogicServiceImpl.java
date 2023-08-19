@@ -55,7 +55,7 @@ public class GameLogicServiceImpl implements GameLogicService {
     private void updateState(String seshCode) {
 
         State state = stateRepository.findBySeshCode(seshCode);
-        if (state.getHostId() == null) {
+        if (!state.isHostJoined()) {
 
             return;
         }

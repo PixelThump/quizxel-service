@@ -35,7 +35,7 @@ class SeshFactoryImplTest {
         expected.setActive(true);
         expected.setPlayers(new ArrayList<>());
         expected.setCurrentQuestionIndex(0L);
-        expected.setHostId(null);
+        expected.setHostJoined(false);
         expected.setMaxPlayer(10L);
         Questionpack questionpack = new Questionpack();
         expected.setSelectedQuestionPack(questionpack);
