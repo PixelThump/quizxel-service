@@ -1,5 +1,7 @@
 package com.pixelthump.quizxelservice.service;
+import com.pixelthump.quizxelservice.repository.model.player.Player;
 import com.pixelthump.quizxelservice.repository.model.question.Question;
+import com.pixelthump.quizxelservice.service.model.messaging.MessagingPlayer;
 import com.pixelthump.quizxelservice.service.model.messaging.MessagingQuestion;
 import com.pixelthump.quizxelservice.service.model.messaging.SeshUpdate;
 import com.pixelthump.quizxelservice.service.model.state.ControllerState;
@@ -44,7 +46,7 @@ public class BroadcastServiceRestImpl implements BroadcastService {
         if (currentQuestion != null) {
             messagingQuestion = new MessagingQuestion<>(currentQuestion.getQuestionpack().getPackName(), currentQuestion.getText(), currentQuestion.getType(), currentQuestion.getAnswer());
         }
-        controller.put("players", controllerState.getPlayers());
+        controller.put("players", controllerState.getPlayers().stream().map(this::convertToMessagingPlayer).toList());
         controller.put("seshCode", controllerState.getSeshCode());
         controller.put("currentStage", controllerState.getCurrentStage());
         controller.put("maxPlayers", controllerState.getMaxPlayers());
@@ -55,4 +57,14 @@ public class BroadcastServiceRestImpl implements BroadcastService {
         controller.put("buzzedPlayerId", controllerState.getBuzzedPlayerId());
         return controller;
     }
+
+    private MessagingPlayer convertToMessagingPlayer(Player player){
+
+        MessagingPlayer messagingPlayer = new MessagingPlayer();
+        messagingPlayer.setPlayerId(player.getPlayerId());
+        messagingPlayer.setPoints(player.getPoints());
+        messagingPlayer.setVip(player.getVip());
+        return messagingPlayer;
+    }
+
 }
