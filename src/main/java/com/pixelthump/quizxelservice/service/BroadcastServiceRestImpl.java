@@ -32,13 +32,8 @@ public class BroadcastServiceRestImpl implements BroadcastService {
     public void broadcastSeshUpdate(SeshUpdate seshUpdate, String seshCode) {
 
         log.info("Broadcasting to {} with {}", seshCode, seshCode);
-
-        MessagingSeshStateWrapper host = new MessagingSeshStateWrapper(getHostMap(seshUpdate.getHost()));
-        MessagingSeshStateWrapper controller = new MessagingSeshStateWrapper(getControllerMap(seshUpdate.getController()));
-        MessagingSeshUpdate messagingSeshUpdate = new MessagingSeshUpdate(host, controller);
-
         String apiUrl = backendBasePath + "/messaging/seshs/" + seshCode + "/broadcasts";
-        restTemplate.postForEntity(apiUrl, messagingSeshUpdate, String.class);
+        restTemplate.postForEntity(apiUrl, getControllerMap(seshUpdate.getController()), String.class);
     }
 
     private Map<String, Object> getControllerMap(ControllerState controllerState) {
