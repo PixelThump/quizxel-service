@@ -7,6 +7,7 @@ import com.pixelthump.quizxelservice.rest.model.command.QuizxelCommand;
 import com.pixelthump.quizxelservice.service.JoinService;
 import com.pixelthump.quizxelservice.service.SeshService;
 import com.pixelthump.quizxelservice.service.model.SeshInfo;
+import com.pixelthump.quizxelservice.service.model.state.AbstractServiceState;
 import com.pixelthump.quizxelservice.service.model.state.controller.AbstractControllerState;
 import com.pixelthump.quizxelservice.service.model.state.host.AbstractHostState;
 import lombok.extern.log4j.Log4j2;
@@ -102,6 +103,21 @@ public class QuizxelSeshResource {
             return hostState;
         } catch (Exception e) {
             log.warn("Finished joinAsHost with seshCode={}, reconnectToken={}, error={}", seshCode, reconnectToken, e.toString());
+            throw e;
+        }
+    }
+
+    @GetMapping("/{seshCode}/players/{playerName}/state")
+    @ResponseBody
+    public AbstractServiceState getPlayerState(@PathVariable String seshCode, @PathVariable String playerName){
+
+        log.info("Started getPlayerState with seshCode={}, playerName={}", seshCode, playerName);
+        try {
+            AbstractServiceState state = joinService.getStateForPlayer(seshCode, playerName);
+            log.info("Finished getPlayerState with seshCode={}, playerName={}, result={}", seshCode, playerName, state);
+            return state;
+        } catch (Exception e) {
+            log.warn("Exiting getPlayerState with seshCode={}, playerName={}, error={}", seshCode, playerName, e);
             throw e;
         }
     }

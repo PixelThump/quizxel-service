@@ -4,6 +4,7 @@ import com.pixelthump.quizxelservice.repository.StateRepository;
 import com.pixelthump.quizxelservice.repository.model.State;
 import com.pixelthump.quizxelservice.repository.model.player.Player;
 import com.pixelthump.quizxelservice.repository.model.player.PlayerIconName;
+import com.pixelthump.quizxelservice.service.model.state.AbstractServiceState;
 import com.pixelthump.quizxelservice.service.model.state.controller.AbstractControllerState;
 import com.pixelthump.quizxelservice.service.model.state.host.AbstractHostState;
 import lombok.extern.log4j.Log4j2;
@@ -64,5 +65,21 @@ public class JoinServiceImpl implements JoinService {
         state.setHasChanged(true);
         stateRepository.save(state);
         return this.broadcastService.getHostState(state);
+    }
+
+    @Override
+    public AbstractServiceState getStateForPlayer(String seshCode, String playerName) {
+
+        State state = stateRepository.findBySeshCode(seshCode);
+
+        AbstractServiceState result;
+        if (playerName.equals("host")) {
+            result = this.broadcastService.getHostState(state);
+        } else {
+            Player player = state.getPlayers().stream().filter(player1 -> player1.getPlayerId().getPlayerName().equals(playerName)).findAny().orElseThrow(()->new ResponseStatusException(HttpStatus.UNAUTHORIZED));
+            result = this.broadcastService.getControllerState(player, state);
+        }
+
+        return result;
     }
 }
