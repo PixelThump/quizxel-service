@@ -1,6 +1,8 @@
 package com.pixelthump.quizxelservice.service;
 import com.pixelthump.quizxelservice.repository.CommandRespository;
+import com.pixelthump.quizxelservice.repository.QuestionPackRepository;
 import com.pixelthump.quizxelservice.repository.StateRepository;
+import com.pixelthump.quizxelservice.repository.model.Questionpack;
 import com.pixelthump.quizxelservice.repository.model.SeshStage;
 import com.pixelthump.quizxelservice.repository.model.State;
 import com.pixelthump.quizxelservice.repository.model.command.Command;
@@ -17,6 +19,7 @@ import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 
 @Component
 @Log4j2
@@ -25,13 +28,15 @@ public class GameLogicServiceImpl implements GameLogicService {
     private final StateRepository stateRepository;
     private final CommandRespository commandRespository;
     private final BroadcastService broadcastService;
+    private final QuestionPackRepository questionPackRepository;
 
     @Autowired
-    public GameLogicServiceImpl(StateRepository stateRepository, CommandRespository commandRespository, BroadcastService stompBroadcastService) {
+    public GameLogicServiceImpl(StateRepository stateRepository, CommandRespository commandRespository, BroadcastService stompBroadcastService, QuestionPackRepository questionPackRepository) {
 
         this.stateRepository = stateRepository;
         this.commandRespository = commandRespository;
         this.broadcastService = stompBroadcastService;
+        this.questionPackRepository = questionPackRepository;
     }
 
     @Scheduled(fixedDelayString = "${quizxel.tickrate}", initialDelayString = "${quizxel.tickrate}")
@@ -119,10 +124,29 @@ public class GameLogicServiceImpl implements GameLogicService {
 
             processChangeIconCommand(state, command.getPlayerName(), command.getBody());
 
+        } else if (command.getType().equals("changeQuestionPack")) {
+
+            processchangeQuestionPackCommand(state, command.getPlayerName(), command.getBody());
+
         } else {
 
             throw new IllegalArgumentException();
         }
+    }
+
+    private void processchangeQuestionPackCommand(State state, String playerName, String body) {
+
+        if (!isVip(state, playerName)) {
+
+            return;
+        }
+
+        Optional<Questionpack> questionPackOptional = questionPackRepository.findByPackName(body);
+        if (questionPackOptional.isEmpty()){
+
+            return;
+        }
+        state.setSelectedQuestionPack(questionPackOptional.get());
     }
 
     private void processMakeVipCommand(State state, String executerName, String targetName) {
@@ -199,7 +223,8 @@ public class GameLogicServiceImpl implements GameLogicService {
     private void processBuzzerCommand(State state, Command command) {
 
         if (!isVip(state, command.getPlayerName()) && isBuzzed(state)) return;
-        if (!isVip(state, command.getPlayerName()) && !isBuzzed(state)) state.setBuzzedPlayerName(command.getPlayerName());
+        if (!isVip(state, command.getPlayerName()) && !isBuzzed(state))
+            state.setBuzzedPlayerName(command.getPlayerName());
         if (isVip(state, command.getPlayerName())) state.setBuzzedPlayerName(command.getBody());
     }
 
@@ -263,7 +288,6 @@ public class GameLogicServiceImpl implements GameLogicService {
     }
 
     private void broadcastState(State state) {
-
 
         try {
             broadcastService.broadcastSeshUpdate(state);

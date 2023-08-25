@@ -135,7 +135,7 @@ class QuizxelSeshResourceTest {
 
         AbstractHostState state = new HostMainState();
         when(joinService.joinAsHost(existingSeshCode)).thenReturn(state);
-        AbstractHostState result = seshResource.joinAsHost(existingSeshCode, null);
+        AbstractHostState result = seshResource.joinAsHost(existingSeshCode);
         AbstractHostState expected = new HostMainState();
         assertEquals(expected, result);
     }

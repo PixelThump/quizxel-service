@@ -10,6 +10,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 
 import java.util.ArrayList;
+import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
@@ -39,7 +40,7 @@ class SeshFactoryImplTest {
         expected.setMaxPlayer(10L);
         Questionpack questionpack = new Questionpack();
         expected.setSelectedQuestionPack(questionpack);
-        when(questionPackRepository.findByPackName(any())).thenReturn(questionpack);
+        when(questionPackRepository.findByPackName(any())).thenReturn(Optional.of(questionpack));
 
         State result = seshFactory.createSesh(seshCode);
 
