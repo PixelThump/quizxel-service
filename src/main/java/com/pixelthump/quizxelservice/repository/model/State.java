@@ -44,6 +44,10 @@ public class State implements Serializable {
     private Boolean showAnswer;
     @Column(name = "has_changed", nullable = false)
     private Boolean hasChanged = false;
+    @ToString.Exclude
+    @ManyToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE, CascadeType.DETACH})
+    @JoinTable(name = "state_questionpacks", joinColumns = @JoinColumn(name = "state_sesh_code"), inverseJoinColumns = @JoinColumn(name = "questionpacks_pack_name"))
+    private List<Questionpack> questionpacks = new ArrayList<>();
 
     public void nextQuestion() {
 

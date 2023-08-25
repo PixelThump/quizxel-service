@@ -1,4 +1,5 @@
 package com.pixelthump.quizxelservice.service;
+import com.pixelthump.quizxelservice.repository.model.Questionpack;
 import com.pixelthump.quizxelservice.repository.model.SeshStage;
 import com.pixelthump.quizxelservice.repository.model.State;
 import com.pixelthump.quizxelservice.repository.model.player.Player;
@@ -62,7 +63,7 @@ public class BroadcastServiceRestImpl implements BroadcastService {
         AbstractHostState hostState;
         if (state.getSeshStage().equals(SeshStage.LOBBY)) {
             hostState = getHostLobbyState(state);
-        }else {
+        } else {
 
             hostState = getHostMainState(state);
         }
@@ -155,6 +156,7 @@ public class BroadcastServiceRestImpl implements BroadcastService {
         ControllerLobbyState lobbyState = new ControllerLobbyState();
         lobbyState.setIsVip(player.getVip());
         lobbyState.setHasVip(state.getPlayers().stream().anyMatch(Player::getVip));
+        lobbyState.setQuestionPackNames(state.getQuestionpacks().stream().map(Questionpack::getPackName).toList());
         return lobbyState;
     }
 

@@ -20,5 +20,8 @@ public class Questionpack implements Serializable {
     @Id
     @Column(name = "pack_name", nullable = false)
     private String packName;
+    @ManyToMany(mappedBy = "questionpacks", cascade = {CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REFRESH, CascadeType.DETACH})
+    private List<State> states = new ArrayList<>();
+
 
 }

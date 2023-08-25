@@ -32,6 +32,7 @@ public class SeshFactoryImpl implements SeshFactory{
         sesh.setHostJoined(false);
         sesh.setMaxPlayer(10L);
         sesh.setSelectedQuestionPack(questionPackRepository.findByPackName("Thomas's Birthday 2023"));
+        sesh.setQuestionpacks(questionPackRepository.findAll());
         return sesh;
     }
 }
