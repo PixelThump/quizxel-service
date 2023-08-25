@@ -94,15 +94,15 @@ public class QuizxelSeshResource {
 
     @PostMapping(value = "/{seshCode}/players/host")
     @ResponseBody
-    public AbstractHostState joinAsHost(@PathVariable String seshCode, @RequestParam(required = false) String reconnectToken) {
+    public AbstractHostState joinAsHost(@PathVariable String seshCode) {
 
-        log.info("Started joinAsHost with seshCode={}, reconnectToken={}", seshCode, reconnectToken);
+        log.info("Started joinAsHost with seshCode={}", seshCode);
         try {
             AbstractHostState hostState = joinService.joinAsHost(seshCode);
-            log.info("Finished joinAsHost with seshCode={},  reconnectToken={} state={}", seshCode, reconnectToken, hostState);
+            log.info("Finished joinAsHost with seshCode={}, state={}", seshCode, hostState);
             return hostState;
         } catch (Exception e) {
-            log.warn("Finished joinAsHost with seshCode={}, reconnectToken={}, error={}", seshCode, reconnectToken, e.toString());
+            log.warn("Finished joinAsHost with seshCode={}, error={}", seshCode, e.toString());
             throw e;
         }
     }
