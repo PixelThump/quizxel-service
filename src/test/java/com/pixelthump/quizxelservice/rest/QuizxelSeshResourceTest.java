@@ -9,6 +9,7 @@ import com.pixelthump.quizxelservice.service.GameLogicService;
 import com.pixelthump.quizxelservice.service.JoinService;
 import com.pixelthump.quizxelservice.service.SeshService;
 import com.pixelthump.quizxelservice.service.model.SeshInfo;
+import com.pixelthump.quizxelservice.service.model.state.AbstractServiceState;
 import com.pixelthump.quizxelservice.service.model.state.controller.AbstractControllerState;
 import com.pixelthump.quizxelservice.service.model.state.controller.ControllerPlayerMainState;
 import com.pixelthump.quizxelservice.service.model.state.host.AbstractHostState;
@@ -40,7 +41,6 @@ class QuizxelSeshResourceTest {
     private SeshInfo nonExistingSesh;
     @MockBean
     GameLogicService gameLogicService;
-
     @MockBean
     JoinService joinService;
 
@@ -84,7 +84,18 @@ class QuizxelSeshResourceTest {
     }
 
     @Test
-    void hostSeshInfo_nonexistingSeshCode_shouldReturnCorrectInfoAndHostSesh() {
+    void getSeshInfo_someRandomError_shouldThrowCorrectException() {
+
+        String responseMessage = "Sesh with seshCode " + nonExistingSeshCode + " not found";
+        when(seshService.getSeshInfo(any())).thenThrow(new RuntimeException(responseMessage));
+        ResponseStatusException result = assertThrows(ResponseStatusException.class, () -> seshResource.getSeshInfo(nonExistingSeshCode));
+
+        assertTrue(result.getMessage().contains(responseMessage));
+        assertEquals(HttpStatusCode.valueOf(500), result.getStatusCode());
+    }
+
+    @Test
+    void hostSesh_nonexistingSeshCode_shouldReturnCorrectInfoAndHostSesh() {
 
         when(seshService.hostSesh(any())).thenReturn(nonExistingSesh);
 
@@ -98,17 +109,30 @@ class QuizxelSeshResourceTest {
     }
 
     @Test
-    void hostSeshInfo_existingSeshCode_shouldThrowCorrectException() {
+    void hostSesh_existingSeshCode_shouldThrowCorrectException() {
 
         String responseMessage = "Sesh with seshCode " + existingSeshCode + " already exists";
         when(seshService.hostSesh(any())).thenThrow(new ResponseStatusException(HttpStatus.CONFLICT, responseMessage));
 
         ResponseStatusException result = assertThrows(ResponseStatusException.class, () -> seshResource.hostSesh(existingSeshCode));
 
-        System.out.println(result.getMessage());
         assertTrue(result.getMessage().contains(responseMessage));
 
         HttpStatusCode expectedStatusCode = HttpStatusCode.valueOf(409);
+        assertEquals(expectedStatusCode, result.getStatusCode());
+    }
+
+    @Test
+    void hostSesh_someRandomError_shouldThrowCorrectException() {
+
+        String responseMessage = "Sesh with seshCode " + existingSeshCode + " already exists";
+        when(seshService.hostSesh(any())).thenThrow(new RuntimeException(responseMessage));
+
+        ResponseStatusException result = assertThrows(ResponseStatusException.class, () -> seshResource.hostSesh(existingSeshCode));
+
+        assertTrue(result.getMessage().contains(responseMessage));
+
+        HttpStatusCode expectedStatusCode = HttpStatusCode.valueOf(500);
         assertEquals(expectedStatusCode, result.getStatusCode());
     }
 
@@ -118,6 +142,32 @@ class QuizxelSeshResourceTest {
         QuizxelCommand command = new QuizxelCommand("abcd", "buzzer", "abcd");
         seshResource.addCommand(existingSeshCode, command);
         verify(seshService, times(1)).sendCommandToSesh(any(), eq(existingSeshCode));
+    }
+
+    @Test
+    void addCommand_nonExistingSesh_shouldCallSeshService() {
+
+        QuizxelCommand command = new QuizxelCommand("abcd", "buzzer", "abcd");
+        doThrow(new ResponseStatusException(HttpStatus.NOT_FOUND, "Sesh doesn't exist")).when(seshService).sendCommandToSesh(any(), any());
+        ResponseStatusException result = assertThrows(ResponseStatusException.class, () -> seshResource.addCommand(nonExistingSeshCode, command));
+
+        assertTrue(result.getMessage().contains("Sesh doesn't exist"));
+
+        HttpStatusCode expectedStatusCode = HttpStatusCode.valueOf(404);
+        assertEquals(expectedStatusCode, result.getStatusCode());
+    }
+
+    @Test
+    void addCommand_someRandomError_shouldCallSeshService() {
+
+        QuizxelCommand command = new QuizxelCommand("abcd", "buzzer", "abcd");
+        doThrow(new RuntimeException("Error happened sowwy")).when(seshService).sendCommandToSesh(any(), any());
+        ResponseStatusException result = assertThrows(ResponseStatusException.class, () -> seshResource.addCommand(nonExistingSeshCode, command));
+
+        assertTrue(result.getMessage().contains("Error happened sowwy"));
+
+        HttpStatusCode expectedStatusCode = HttpStatusCode.valueOf(500);
+        assertEquals(expectedStatusCode, result.getStatusCode());
     }
 
     @Test
@@ -131,12 +181,96 @@ class QuizxelSeshResourceTest {
     }
 
     @Test
-    void joinAsHost_existingSesh_shouldCallGameLogicServiceAndReturnState() {
+    void joinAsController_nonExistingSesh_shouldCallGameLogicServiceAndReturnState() {
+
+        when(joinService.joinAsController(eq(existingSeshCode), any())).thenThrow(new ResponseStatusException(HttpStatus.NOT_FOUND, "Sesh doesn't exist"));
+        QuizxelPlayer player = new QuizxelPlayer(new QuizxelPlayerId("abcd", existingSeshCode), false, 0L, QuizxelPlayerIconName.BASIC);
+        ResponseStatusException result = assertThrows(ResponseStatusException.class, () -> seshResource.joinAsController(existingSeshCode, player));
+
+        assertTrue(result.getMessage().contains("Sesh doesn't exist"));
+
+        HttpStatusCode expectedStatusCode = HttpStatusCode.valueOf(404);
+        assertEquals(expectedStatusCode, result.getStatusCode());
+    }
+
+    @Test
+    void joinAsController_someRandomError_shouldCallGameLogicServiceAndReturnState() {
+
+        when(joinService.joinAsController(eq(existingSeshCode), any())).thenThrow(new RuntimeException("Sowwy"));
+        QuizxelPlayer player = new QuizxelPlayer(new QuizxelPlayerId("abcd", existingSeshCode), false, 0L, QuizxelPlayerIconName.BASIC);
+        ResponseStatusException result = assertThrows(ResponseStatusException.class, () -> seshResource.joinAsController(existingSeshCode, player));
+
+        assertTrue(result.getMessage().contains("Sowwy"));
+
+        HttpStatusCode expectedStatusCode = HttpStatusCode.valueOf(500);
+        assertEquals(expectedStatusCode, result.getStatusCode());
+    }
+
+    @Test
+    void joinAsHost_existingSesh_shouldCallJoinLogicServiceAndReturnState() {
 
         AbstractHostState state = new HostMainState();
         when(joinService.joinAsHost(existingSeshCode)).thenReturn(state);
         AbstractHostState result = seshResource.joinAsHost(existingSeshCode);
         AbstractHostState expected = new HostMainState();
         assertEquals(expected, result);
+    }
+
+    @Test
+    void joinAsHost_nonExistingSesh_shouldThrowCorrectException() {
+
+        when(joinService.joinAsHost(existingSeshCode)).thenThrow(new ResponseStatusException(HttpStatus.NOT_FOUND, "Sesh doesn't exist"));
+        ResponseStatusException result = assertThrows(ResponseStatusException.class, () -> seshResource.joinAsHost(existingSeshCode));
+
+        assertTrue(result.getMessage().contains("Sesh doesn't exist"));
+
+        HttpStatusCode expectedStatusCode = HttpStatusCode.valueOf(404);
+        assertEquals(expectedStatusCode, result.getStatusCode());
+    }
+
+    @Test
+    void joinAsHost_someRandomRrror_shouldThrowCorrectException() {
+
+        when(joinService.joinAsHost(existingSeshCode)).thenThrow(new RuntimeException("Sowwy"));
+        ResponseStatusException result = assertThrows(ResponseStatusException.class, () -> seshResource.joinAsHost(existingSeshCode));
+
+        assertTrue(result.getMessage().contains("Sowwy"));
+
+        HttpStatusCode expectedStatusCode = HttpStatusCode.valueOf(500);
+        assertEquals(expectedStatusCode, result.getStatusCode());
+    }
+
+    @Test
+    void getPlayerState_existingSesh_shouldCallJoinServiceAndReturnState() {
+
+        AbstractHostState state = new HostMainState();
+        when(joinService.getStateForPlayer(existingSeshCode, "abcd")).thenReturn(state);
+        AbstractServiceState result = seshResource.getPlayerState(existingSeshCode, "abcd");
+        AbstractHostState expected = new HostMainState();
+        assertEquals(expected, result);
+    }
+
+    @Test
+    void getPlayerState_nonExistingSesh_shouldThrowCorrectException() {
+
+        when(joinService.getStateForPlayer(existingSeshCode, "abcd")).thenThrow(new ResponseStatusException(HttpStatus.NOT_FOUND, "Sesh doesn't exist"));
+        ResponseStatusException result = assertThrows(ResponseStatusException.class, () -> seshResource.getPlayerState(existingSeshCode, "abcd"));
+
+        assertTrue(result.getMessage().contains("Sesh doesn't exist"));
+
+        HttpStatusCode expectedStatusCode = HttpStatusCode.valueOf(404);
+        assertEquals(expectedStatusCode, result.getStatusCode());
+    }
+
+    @Test
+    void getPlayerState_someRandomRrror_shouldThrowCorrectException() {
+
+        when(joinService.getStateForPlayer(existingSeshCode, "abcd")).thenThrow(new RuntimeException("Sowwy"));
+        ResponseStatusException result = assertThrows(ResponseStatusException.class, () -> seshResource.getPlayerState(existingSeshCode, "abcd"));
+
+        assertTrue(result.getMessage().contains("Sowwy"));
+
+        HttpStatusCode expectedStatusCode = HttpStatusCode.valueOf(500);
+        assertEquals(expectedStatusCode, result.getStatusCode());
     }
 }
