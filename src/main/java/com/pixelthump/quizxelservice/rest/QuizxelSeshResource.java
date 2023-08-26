@@ -13,7 +13,9 @@ import com.pixelthump.quizxelservice.service.model.state.host.AbstractHostState;
 import lombok.extern.log4j.Log4j2;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatusCode;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
 
 @RestController
 @RequestMapping("/seshs")
@@ -36,12 +38,19 @@ public class QuizxelSeshResource {
     @ResponseBody
     public QuizxelSeshInfo getSeshInfo(@PathVariable String seshCode) {
 
-        log.info("Started getSesh with seshCode={}", seshCode);
-        SeshInfo sesh = seshService.getSeshInfo(seshCode);
-        QuizxelSeshInfo quizxelSesh = modelMapper.map(sesh, QuizxelSeshInfo.class);
-        log.info("Finished getSesh with seshCode={}, result={}", seshCode, quizxelSesh);
-
-        return quizxelSesh;
+        try {
+            log.info("Started getSesh with seshCode={}", seshCode);
+            SeshInfo sesh = seshService.getSeshInfo(seshCode);
+            QuizxelSeshInfo quizxelSesh = modelMapper.map(sesh, QuizxelSeshInfo.class);
+            log.info("Finished getSesh with seshCode={}, result={}", seshCode, quizxelSesh);
+            return quizxelSesh;
+        } catch (ResponseStatusException e) {
+            log.warn("Finished getSeshInfo with seshCode={}, error={}", seshCode, e.toString());
+            throw e;
+        } catch (Exception e) {
+            log.warn("Finished getSeshInfo with seshCode={}, error={}", seshCode, e.toString());
+            throw new ResponseStatusException(HttpStatusCode.valueOf(500), e.getMessage(), e);
+        }
     }
 
     @PostMapping
@@ -54,9 +63,12 @@ public class QuizxelSeshResource {
             QuizxelSeshInfo quizxelSesh = modelMapper.map(sesh, QuizxelSeshInfo.class);
             log.info("Finished hostSesh with seshCode={}, result={}", seshCode, quizxelSesh);
             return quizxelSesh;
-        } catch (Exception e) {
+        } catch (ResponseStatusException e) {
             log.warn("Finished hostSesh with seshCode={}, error={}", seshCode, e.toString());
             throw e;
+        } catch (Exception e) {
+            log.warn("Finished hostSesh with seshCode={}, error={}", seshCode, e.toString());
+            throw new ResponseStatusException(HttpStatusCode.valueOf(500), e.getMessage(), e);
         }
     }
 
@@ -69,9 +81,12 @@ public class QuizxelSeshResource {
             Command command = modelMapper.map(quizxelCommand, Command.class);
             seshService.sendCommandToSesh(command, seshCode);
             log.info("Finished addCommand with seshCode={}, command={}", seshCode, quizxelCommand);
-        } catch (Exception e) {
-            log.warn("Finished addCommand with seshCode={}, command={} error={}", seshCode, quizxelCommand, e.toString());
+        } catch (ResponseStatusException e) {
+            log.warn("Finished addCommand with seshCode={}, command={}, error={}", seshCode, quizxelCommand, e.toString());
             throw e;
+        } catch (Exception e) {
+            log.warn("Finished addCommand with seshCode={}, command={}, error={}", seshCode, quizxelCommand, e.getMessage());
+            throw new ResponseStatusException(HttpStatusCode.valueOf(500), e.getMessage(), e);
         }
     }
 
@@ -85,9 +100,12 @@ public class QuizxelSeshResource {
             AbstractControllerState controllerState = joinService.joinAsController(seshCode, player);
             log.info("Finished joinAsController with seshCode={}, quizxelPlayer={}, state={}", seshCode, quizxelPlayer, controllerState);
             return controllerState;
-        } catch (Exception e) {
+        } catch (ResponseStatusException e) {
             log.warn("Finished joinAsController with seshCode={}, quizxelPlayer={}, error={}", seshCode, quizxelPlayer, e.toString());
             throw e;
+        } catch (Exception e) {
+            log.warn("Finished joinAsController with seshCode={}, quizxelPlayer={}, error={}", seshCode, quizxelPlayer, e.getMessage());
+            throw new ResponseStatusException(HttpStatusCode.valueOf(500), e.getMessage(), e);
         }
 
     }
@@ -101,24 +119,30 @@ public class QuizxelSeshResource {
             AbstractHostState hostState = joinService.joinAsHost(seshCode);
             log.info("Finished joinAsHost with seshCode={}, state={}", seshCode, hostState);
             return hostState;
-        } catch (Exception e) {
+        } catch (ResponseStatusException e) {
             log.warn("Finished joinAsHost with seshCode={}, error={}", seshCode, e.toString());
             throw e;
+        } catch (Exception e) {
+            log.warn("Finished joinAsHost with seshCode={}, error={}", seshCode, e.getMessage());
+            throw new ResponseStatusException(HttpStatusCode.valueOf(500), e.getMessage(), e);
         }
     }
 
     @GetMapping("/{seshCode}/players/{playerName}/state")
     @ResponseBody
-    public AbstractServiceState getPlayerState(@PathVariable String seshCode, @PathVariable String playerName){
+    public AbstractServiceState getPlayerState(@PathVariable String seshCode, @PathVariable String playerName) {
 
         log.info("Started getPlayerState with seshCode={}, playerName={}", seshCode, playerName);
         try {
             AbstractServiceState state = joinService.getStateForPlayer(seshCode, playerName);
             log.info("Finished getPlayerState with seshCode={}, playerName={}, result={}", seshCode, playerName, state);
             return state;
-        } catch (Exception e) {
-            log.warn("Exiting getPlayerState with seshCode={}, playerName={}, error={}", seshCode, playerName, e);
+        } catch (ResponseStatusException e) {
+            log.warn("Finished getPlayerState with seshCode={}, playerName={}, error={}", seshCode, playerName, e.toString());
             throw e;
+        } catch (Exception e) {
+            log.warn("Finished getPlayerState with seshCode={}, playerName={}, error={}", seshCode, playerName, e.getMessage());
+            throw new ResponseStatusException(HttpStatusCode.valueOf(500), e.getMessage(), e);
         }
     }
 }
