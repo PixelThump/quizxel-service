@@ -3,7 +3,6 @@ import com.pixelthump.quizxelservice.repository.CommandRespository;
 import com.pixelthump.quizxelservice.repository.StateRepository;
 import com.pixelthump.quizxelservice.repository.model.command.Command;
 import com.pixelthump.quizxelservice.repository.model.command.CommandId;
-import com.pixelthump.quizxelservice.repository.model.State;
 import com.pixelthump.quizxelservice.service.model.SeshInfo;
 import jakarta.transaction.Transactional;
 import org.springframework.http.HttpStatus;

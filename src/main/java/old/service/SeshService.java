@@ -1,6 +1,5 @@
 package com.pixelthump.quizxelservice.service;
 import com.pixelthump.quizxelservice.repository.model.command.Command;
-import com.pixelthump.quizxelservice.repository.model.State;
 import com.pixelthump.quizxelservice.service.model.SeshInfo;
 
 public interface SeshService {
