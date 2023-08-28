@@ -2,8 +2,5 @@ package com.pixelthump.quizxelservice.repository;
 import com.pixelthump.quizxelservice.repository.model.question.Question;
 import org.springframework.data.jpa.repository.JpaRepository;
 
-public interface QuestionRepository extends JpaRepository<Question, Long> {
-
-    Question findByQuestionpack_PackNameAndPackIndex(String packName, Long packIndex);
-
+public interface QuestionRepository extends JpaRepository<Question<?>, Long> {
 }
