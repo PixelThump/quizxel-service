@@ -33,6 +33,19 @@ public class QuizxelStateEntity extends State {
     @JoinTable(name = "state_questionpacks", joinColumns = @JoinColumn(name = "state_sesh_code"), inverseJoinColumns = @JoinColumn(name = "questionpacks_pack_name"))
     private List<Questionpack> questionpacks = new ArrayList<>();
 
+    public void nextQuestion() {
+
+        long questionPackSize = selectedQuestionPack.getQuestions().size();
+        currentQuestionIndex += 1;
+        if (currentQuestionIndex >= questionPackSize) currentQuestionIndex = questionPackSize - 1;
+    }
+
+    public void prevQuestion() {
+
+        currentQuestionIndex -= 1;
+        if (currentQuestionIndex <= 0) currentQuestionIndex = 0L;
+    }
+
     @Override
     public boolean equals(Object o) {
 

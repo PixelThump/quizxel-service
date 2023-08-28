@@ -1,13 +1,10 @@
 package com.pixelthump.quizxelservice.rest;
-import com.pixelthump.quizxelservice.Application;
 import com.pixelthump.quizxelservice.rest.model.ping.Ping;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
 import java.time.OffsetDateTime;
-
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @SpringBootTest(classes = Application.class)
 class PingResourceTest {
