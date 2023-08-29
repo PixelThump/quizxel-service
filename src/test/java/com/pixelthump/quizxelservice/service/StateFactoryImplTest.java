@@ -1,7 +1,11 @@
 package com.pixelthump.quizxelservice.service;
+import com.pixelthump.quizxelservice.Application;
 import com.pixelthump.quizxelservice.repository.QuestionPackRepository;
 import com.pixelthump.quizxelservice.repository.model.Questionpack;
+import com.pixelthump.quizxelservice.repository.model.QuizxelStateEntity;
 import com.pixelthump.quizxelservice.repository.model.SeshStage;
+import com.pixelthump.seshtypelib.service.StateFactory;
+import com.pixelthump.seshtypelib.service.model.State;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -14,10 +18,10 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 @SpringBootTest(classes = Application.class)
-class SeshFactoryImplTest {
+class StateFactoryImplTest {
 
     @Autowired
-    SeshFactory seshFactory;
+    StateFactory seshFactory;
     @MockBean
     QuestionPackRepository questionPackRepository;
 
@@ -25,7 +29,7 @@ class SeshFactoryImplTest {
     void createSesh_shouldCreateSeshStateWithCorrectBaseConfiguration() {
 
         String seshCode = "ABCD";
-        State expected = new State();
+        QuizxelStateEntity expected = new QuizxelStateEntity();
         expected.setSeshStage(SeshStage.LOBBY);
         expected.setSeshCode(seshCode);
         expected.setShowAnswer(false);
@@ -40,7 +44,7 @@ class SeshFactoryImplTest {
         expected.setSelectedQuestionPack(questionpack);
         when(questionPackRepository.findByPackName(any())).thenReturn(Optional.of(questionpack));
 
-        State result = seshFactory.createSesh(seshCode);
+        State result = seshFactory.createSeshTypeState(seshCode);
 
         assertEquals(expected, result);
     }

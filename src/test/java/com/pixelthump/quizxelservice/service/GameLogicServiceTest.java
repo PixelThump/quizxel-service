@@ -1,9 +1,14 @@
 package com.pixelthump.quizxelservice.service;
-import com.pixelthump.quizxelservice.repository.CommandRespository;
-import com.pixelthump.quizxelservice.repository.StateRepository;
-import com.pixelthump.quizxelservice.repository.model.command.Command;
-import com.pixelthump.quizxelservice.repository.model.command.CommandId;
-import com.pixelthump.quizxelservice.repository.model.player.Player;
+import com.pixelthump.quizxelservice.Application;
+import com.pixelthump.quizxelservice.repository.QuestionPackRepository;
+import com.pixelthump.quizxelservice.repository.QuizxelStateRepository;
+import com.pixelthump.quizxelservice.repository.model.QuizxelStateEntity;
+import com.pixelthump.quizxelservice.repository.model.player.QuizxelPlayerEntity;
+import com.pixelthump.seshtypelib.repository.CommandRespository;
+import com.pixelthump.seshtypelib.repository.model.command.Command;
+import com.pixelthump.seshtypelib.repository.model.command.CommandId;
+import com.pixelthump.seshtypelib.service.GameLogicService;
+import com.pixelthump.seshtypelib.service.model.State;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -22,41 +27,33 @@ class GameLogicServiceTest {
     @Autowired
     GameLogicService gameLogicService;
     @MockBean
-    StateRepository stateRepository;
+    QuizxelStateRepository stateRepository;
     @MockBean
     CommandRespository commandRespository;
     @MockBean
-    BroadcastService BroadcastService;
-    @MockBean
-    SeshService seshService;
+    QuestionPackRepository questionPackRepository;
 
     @Test
-    void processQueues_shouldGetAllQueues(){
+    void processQueue_shouldProcessQueue() {
 
-        when(stateRepository.findByActive(true)).thenReturn(new ArrayList<>());
-        gameLogicService.processQueues();
-        verify(stateRepository, times(1)).findByActive(true);
-    }
-
-    @Test
-    void processQueues_shouldProcessQueue(){
-
-        List<State> seshs = new ArrayList<>();
+        List<QuizxelStateEntity> seshs = new ArrayList<>();
         String seshCode = "ABCD";
-        State state = new State();
+        QuizxelStateEntity state = new QuizxelStateEntity();
         state.setSeshCode(seshCode);
         state.setHostJoined(true);
-        state.getPlayers().add(new Player());
+        state.getPlayers().add(new QuizxelPlayerEntity());
         seshs.add(state);
         when(stateRepository.findByActive(true)).thenReturn(seshs);
         when(stateRepository.findBySeshCode(any())).thenReturn(seshs.get(0));
         List<Command> commands = getAllCommands(state);
         when(commandRespository.findByCommandId_State_SeshCodeOrderByCommandId_TimestampAsc(seshCode)).thenReturn(commands);
-        gameLogicService.processQueues();
-        verify(stateRepository, times(1)).findByActive(true);
+        gameLogicService.processQueue(seshCode);
+        verify(stateRepository, times(1)).findBySeshCode(seshCode);
+        verify(stateRepository, times(1)).save(any());
     }
 
     private List<Command> getAllCommands(State state) {
+
         List<Command> commands = new ArrayList<>();
         Command makeVipCommand = new Command();
         makeVipCommand.setCommandId(new CommandId(state));

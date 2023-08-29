@@ -13,10 +13,12 @@ import com.pixelthump.seshtypelib.service.model.State;
 import com.pixelthump.seshtypelib.service.model.messaging.AbstractServiceState;
 import com.pixelthump.seshtypelib.service.model.player.Player;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 import java.util.List;
 import java.util.Optional;
 
+@Component
 public class StateServiceImpl implements StateService {
 
     private final QuizxelStateRepository quizxelStateRepository;
