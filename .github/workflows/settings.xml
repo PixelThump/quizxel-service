@@ -17,7 +17,7 @@
         </repository>
         <repository>
           <id>github</id>
-          <url>https://maven.pkg.github.com/${env.OWNER}/${env.REPO_NAME}</url>
+          <url>https://maven.pkg.github.com/${env.OWNER}/*</url>
           <snapshots>
             <enabled>true</enabled>
           </snapshots>
