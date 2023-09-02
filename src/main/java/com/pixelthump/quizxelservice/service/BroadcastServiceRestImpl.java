@@ -12,6 +12,7 @@ import com.pixelthump.quizxelservice.service.model.state.host.AbstractHostState;
 import com.pixelthump.quizxelservice.service.model.state.host.HostLobbyState;
 import com.pixelthump.quizxelservice.service.model.state.host.HostMainState;
 import lombok.extern.log4j.Log4j2;
+import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
@@ -80,10 +81,21 @@ public class BroadcastServiceRestImpl implements BroadcastService {
         mainState.setBuzzedPlayerName(state.getBuzzedPlayerName());
         mainState.setShowAnswer(state.getShowAnswer());
         mainState.setShowQuestion(state.getShowQuestion());
-        Question<?> currentQuestion = state.getSelectedQuestionPack().getQuestions().get(state.getCurrentQuestionIndex().intValue());
-        MessagingQuestion<?> currentMessagingQuestion = new MessagingQuestion<>(currentQuestion.getQuestionpack().getPackName(), currentQuestion.getText(), currentQuestion.getType(), currentQuestion.getAnswer());
+        Question<?> currentQuestion = getCurrentQuestion(state);
+        MessagingQuestion<?> currentMessagingQuestion = convertQuestionToMessagingQuestion(currentQuestion);
         mainState.setCurrentQuestion(currentMessagingQuestion);
         return mainState;
+    }
+
+    @NotNull
+    private static MessagingQuestion<?> convertQuestionToMessagingQuestion(Question<?> question) {
+
+        return new MessagingQuestion<>(question.getQuestionpack().getPackName(), question.getText(), question.getType(), question.getAnswer());
+    }
+
+    private static Question<?> getCurrentQuestion(State state) {
+
+        return state.getSelectedQuestionPack().getQuestions().get(state.getCurrentQuestionIndex().intValue());
     }
 
     private HostLobbyState getHostLobbyState(State state) {
@@ -144,8 +156,8 @@ public class BroadcastServiceRestImpl implements BroadcastService {
         ControllerVipMainState mainState = new ControllerVipMainState();
         mainState.setShowQuestion(state.getShowQuestion());
         mainState.setShowAnswer(state.getShowAnswer());
-        Question<?> currentQuestion = state.getSelectedQuestionPack().getQuestions().get(state.getCurrentQuestionIndex().intValue());
-        MessagingQuestion<?> currentMessagingQuestion = new MessagingQuestion<>(currentQuestion.getQuestionpack().getPackName(), currentQuestion.getText(), currentQuestion.getType(), currentQuestion.getAnswer());
+        Question<?> currentQuestion = getCurrentQuestion(state);
+        MessagingQuestion<?> currentMessagingQuestion = convertQuestionToMessagingQuestion(currentQuestion);
         mainState.setCurrentQuestion(currentMessagingQuestion);
         mainState.setBuzzedPlayerName(state.getBuzzedPlayerName());
         return mainState;
