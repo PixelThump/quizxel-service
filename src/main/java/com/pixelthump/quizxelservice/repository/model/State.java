@@ -20,7 +20,7 @@ public class State implements Serializable {
     @Id
     @Column(name = "sesh_code", nullable = false)
     private String seshCode;
-    @ManyToOne(cascade = CascadeType.ALL)
+    @ManyToOne(cascade = {CascadeType.ALL})
     @JoinColumn(name = "selected_question_pack_pack_name")
     private Questionpack selectedQuestionPack;
     @Enumerated(EnumType.STRING)
@@ -44,8 +44,7 @@ public class State implements Serializable {
     private Boolean showAnswer;
     @Column(name = "has_changed", nullable = false)
     private Boolean hasChanged = false;
-    @ToString.Exclude
-    @ManyToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE, CascadeType.DETACH})
+    @ManyToMany(fetch = FetchType.EAGER, cascade = {CascadeType.PERSIST, CascadeType.MERGE, CascadeType.DETACH})
     @JoinTable(name = "state_questionpacks", joinColumns = @JoinColumn(name = "state_sesh_code"), inverseJoinColumns = @JoinColumn(name = "questionpacks_pack_name"))
     private List<Questionpack> questionpacks = new ArrayList<>();
 
