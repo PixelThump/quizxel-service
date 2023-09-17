@@ -66,9 +66,10 @@ public class StateServiceImpl implements StateService {
         AbstractHostState hostState;
         if (quizxelState.getSeshStage().equals(SeshStage.LOBBY)) {
             hostState = getHostLobbyState(quizxelState);
-        } else {
-
+        } else if (quizxelState.getSeshStage().equals(SeshStage.MAIN)) {
             hostState = getHostMainState(quizxelState);
+        } else {
+            throw new IllegalArgumentException();
         }
 
         hostState.setPlayers(state.getPlayers().stream().map(this::convertToMessagingPlayer).toList());
@@ -83,11 +84,11 @@ public class StateServiceImpl implements StateService {
         QuizxelStateEntity quizxelState = (QuizxelStateEntity) state;
         AbstractControllerState controllerState;
         if (quizxelState.getSeshStage().equals(SeshStage.LOBBY)) {
-
             controllerState = getControllerLobbyState(player, quizxelState);
-        } else {
-
+        } else if (quizxelState.getSeshStage().equals(SeshStage.MAIN)) {
             controllerState = getControllerMainState(player, quizxelState);
+        } else {
+            throw new IllegalArgumentException();
         }
 
         controllerState.setCurrentStage(quizxelState.getSeshStage());
