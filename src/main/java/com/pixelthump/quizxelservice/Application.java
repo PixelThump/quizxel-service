@@ -1,14 +1,8 @@
 package com.pixelthump.quizxelservice;
-import com.ulisesbocchio.jasyptspringboot.annotation.EnableEncryptableProperties;
+import com.pixelthump.seshtypelib.annotations.SeshTypeApplication;
 import org.springframework.boot.SpringApplication;
-import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.scheduling.annotation.EnableScheduling;
-import org.springframework.transaction.annotation.EnableTransactionManagement;
 
-@SpringBootApplication
-@EnableScheduling
-@EnableTransactionManagement
-@EnableEncryptableProperties
+@SeshTypeApplication
 public class Application {
 
     public static void main(String[] args) {

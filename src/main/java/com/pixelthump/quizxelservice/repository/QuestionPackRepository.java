@@ -7,5 +7,4 @@ import java.util.Optional;
 public interface QuestionPackRepository extends JpaRepository<Questionpack, String> {
 
     Optional<Questionpack> findByPackName(String packName);
-
 }

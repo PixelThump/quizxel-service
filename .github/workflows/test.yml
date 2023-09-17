@@ -30,6 +30,10 @@ jobs:
 
       - name: run tests with Maven
         run: mvn -s $GITHUB_WORKSPACE/.github/workflows/settings.xml -B clean jasypt:decrypt -Djasypt.encryptor.password=${{ secrets.ENCRYPTION_PASSWORD }} -Djasypt.plugin.path=file:$GITHUB_WORKSPACE/src/main/resources/application.properties -f pom.xml jacoco:check package --file pom.xml
+        env:
+          ACCESS_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          OWNER: ${{ github.repository_owner }}
+          REPO_NAME: ${{ github.event.repository.name }}
 
       - name: Add coverage to pull request
         uses: madrapps/jacoco-report@v1.3

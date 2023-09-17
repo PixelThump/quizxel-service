@@ -1,21 +1,21 @@
 package com.pixelthump.quizxelservice.service;
-import com.pixelthump.quizxelservice.repository.CommandRespository;
 import com.pixelthump.quizxelservice.repository.QuestionPackRepository;
-import com.pixelthump.quizxelservice.repository.StateRepository;
+import com.pixelthump.quizxelservice.repository.QuizxelStateRepository;
 import com.pixelthump.quizxelservice.repository.model.Questionpack;
+import com.pixelthump.quizxelservice.repository.model.QuizxelStateEntity;
 import com.pixelthump.quizxelservice.repository.model.SeshStage;
-import com.pixelthump.quizxelservice.repository.model.State;
-import com.pixelthump.quizxelservice.repository.model.command.Command;
-import com.pixelthump.quizxelservice.repository.model.player.Player;
 import com.pixelthump.quizxelservice.repository.model.player.PlayerIconName;
+import com.pixelthump.quizxelservice.repository.model.player.QuizxelPlayerEntity;
+import com.pixelthump.seshtypelib.repository.CommandRespository;
+import com.pixelthump.seshtypelib.repository.model.command.Command;
+import com.pixelthump.seshtypelib.service.GameLogicService;
+import com.pixelthump.seshtypelib.service.model.State;
+import com.pixelthump.seshtypelib.service.model.player.Player;
 import jakarta.transaction.Transactional;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
-import java.time.LocalDateTime;
-import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -25,54 +25,39 @@ import java.util.Optional;
 @Log4j2
 public class GameLogicServiceImpl implements GameLogicService {
 
-    private final StateRepository stateRepository;
+    private final QuizxelStateRepository stateRepository;
     private final CommandRespository commandRespository;
-    private final BroadcastService broadcastService;
     private final QuestionPackRepository questionPackRepository;
 
     @Autowired
-    public GameLogicServiceImpl(StateRepository stateRepository, CommandRespository commandRespository, BroadcastService stompBroadcastService, QuestionPackRepository questionPackRepository) {
+    public GameLogicServiceImpl(QuizxelStateRepository stateRepository, CommandRespository commandRespository, QuestionPackRepository questionPackRepository) {
 
         this.stateRepository = stateRepository;
         this.commandRespository = commandRespository;
-        this.broadcastService = stompBroadcastService;
         this.questionPackRepository = questionPackRepository;
     }
 
-    @Scheduled(fixedDelayString = "${quizxel.tickrate}", initialDelayString = "${quizxel.tickrate}")
-    public void processQueues() {
-
-        LocalDateTime startTime = LocalDateTime.now();
-        log.debug("starting processQueues at {}", startTime);
-        List<State> states = stateRepository.findByActive(true);
-        if (states.isEmpty()) return;
-        states.parallelStream().forEach(state -> updateState(state.getSeshCode()));
-        LocalDateTime endTime = LocalDateTime.now();
-        log.debug("Finished processQueues at {} took {} ms", endTime, ChronoUnit.MILLIS.between(startTime, endTime));
-    }
-
+    @Override
     @Transactional
-    private void updateState(String seshCode) {
+    public State processQueue(String seshCode) {
 
-        State state = stateRepository.findBySeshCode(seshCode);
-        if (!state.isHostJoined()) {
+        QuizxelStateEntity quizxelState = stateRepository.findBySeshCode(seshCode);
+        if (!quizxelState.isHostJoined()) {
 
-            return;
+            return quizxelState;
         }
 
-        List<Command> successfullyProcessedCommands = processCommands(state);
+        List<Command> successfullyProcessedCommands = processCommands(quizxelState);
         log.debug("SuccessfullyProcessedCommands={}", successfullyProcessedCommands);
 
-        if (Boolean.FALSE.equals(state.getHasChanged())) {
-            return;
+        if (Boolean.TRUE.equals(quizxelState.getHasChanged())) {
+            quizxelState.setHasChanged(false);
         }
 
-        state.setHasChanged(false);
-        broadcastState(state);
-        stateRepository.save(state);
+        return stateRepository.save(quizxelState);
     }
 
-    private List<Command> processCommands(State state) {
+    private List<Command> processCommands(QuizxelStateEntity state) {
 
         List<Command> commands = commandRespository.findByCommandId_State_SeshCodeOrderByCommandId_TimestampAsc(state.getSeshCode());
         List<Command> successfullyProcessedCommands = new ArrayList<>();
@@ -93,7 +78,7 @@ public class GameLogicServiceImpl implements GameLogicService {
         return successfullyProcessedCommands;
     }
 
-    private boolean processCommand(State state, Command command) {
+    private boolean processCommand(QuizxelStateEntity state, Command command) {
 
         if (state.getSeshStage() == SeshStage.LOBBY) {
 
@@ -110,7 +95,7 @@ public class GameLogicServiceImpl implements GameLogicService {
         return false;
     }
 
-    private void processLobbyStageCommand(State state, Command command) {
+    private void processLobbyStageCommand(QuizxelStateEntity state, Command command) {
 
         if (isVip(state, command.getPlayerName()) && command.getType().equals("startSesh")) {
 
@@ -134,7 +119,7 @@ public class GameLogicServiceImpl implements GameLogicService {
         }
     }
 
-    private void processchangeQuestionPackCommand(State state, String playerName, String body) {
+    private void processchangeQuestionPackCommand(QuizxelStateEntity state, String playerName, String body) {
 
         if (!isVip(state, playerName)) {
 
@@ -142,14 +127,14 @@ public class GameLogicServiceImpl implements GameLogicService {
         }
 
         Optional<Questionpack> questionPackOptional = questionPackRepository.findByPackName(body);
-        if (questionPackOptional.isEmpty()){
+        if (questionPackOptional.isEmpty()) {
 
             return;
         }
         state.setSelectedQuestionPack(questionPackOptional.get());
     }
 
-    private void processMakeVipCommand(State state, String executerName, String targetName) {
+    private void processMakeVipCommand(QuizxelStateEntity state, String executerName, String targetName) {
 
         boolean targetIsValid = state.getPlayers().stream().anyMatch(player -> player.getPlayerId().getPlayerName().equals(targetName));
         if (!targetIsValid) {
@@ -160,7 +145,7 @@ public class GameLogicServiceImpl implements GameLogicService {
         state.getPlayers().stream().filter(player -> player.getPlayerId().getPlayerName().equals(targetName)).forEach(player -> player.setVip(true));
     }
 
-    private void processChangeIconCommand(State state, String playerName, String body) {
+    private void processChangeIconCommand(QuizxelStateEntity state, String playerName, String body) {
 
         if (Arrays.stream(PlayerIconName.values()).noneMatch(playerIconName -> playerIconName.name().equals(body))) {
             return;
@@ -170,18 +155,17 @@ public class GameLogicServiceImpl implements GameLogicService {
             return;
         }
         PlayerIconName playerIconName = PlayerIconName.valueOf(body);
-        Player player = players.get(0);
+        QuizxelPlayerEntity player = (QuizxelPlayerEntity) players.get(0);
         player.setPlayerIconName(playerIconName);
-
     }
 
-    private void processStartSeshCommand(State state) {
+    private void processStartSeshCommand(QuizxelStateEntity state) {
 
         state.setCurrentQuestionIndex(0L);
         state.setSeshStage(SeshStage.MAIN);
     }
 
-    private void processMainStageCommand(State state, Command command) {
+    private void processMainStageCommand(QuizxelStateEntity state, Command command) {
 
         String actionType = command.getType();
         switch (actionType) {
@@ -195,7 +179,7 @@ public class GameLogicServiceImpl implements GameLogicService {
         }
     }
 
-    private void processNextQuestionCommand(State state, Command command) {
+    private void processNextQuestionCommand(QuizxelStateEntity state, Command command) {
 
         if (!isVip(state, command.getPlayerName())) return;
         if ("next".equals(command.getBody())) state.nextQuestion();
@@ -205,14 +189,14 @@ public class GameLogicServiceImpl implements GameLogicService {
         state.setShowAnswer(false);
     }
 
-    private void processShowQuestionCommand(State state, Command command) {
+    private void processShowQuestionCommand(QuizxelStateEntity state, Command command) {
 
         if (!isVip(state, command.getPlayerName())) return;
         boolean showQuestion = command.getBody().equals("true");
         state.setShowQuestion(showQuestion);
     }
 
-    private void processShowAnswerCommand(State state, Command command) {
+    private void processShowAnswerCommand(QuizxelStateEntity state, Command command) {
 
         if (!isVip(state, command.getPlayerName())) return;
         boolean showAnswer = command.getBody().equals("true");
@@ -220,7 +204,7 @@ public class GameLogicServiceImpl implements GameLogicService {
         if (showAnswer) state.setShowQuestion(true);
     }
 
-    private void processBuzzerCommand(State state, Command command) {
+    private void processBuzzerCommand(QuizxelStateEntity state, Command command) {
 
         if (!isVip(state, command.getPlayerName()) && isBuzzed(state)) return;
         if (!isVip(state, command.getPlayerName()) && !isBuzzed(state))
@@ -228,7 +212,7 @@ public class GameLogicServiceImpl implements GameLogicService {
         if (isVip(state, command.getPlayerName())) state.setBuzzedPlayerName(command.getBody());
     }
 
-    private void processFreeBuzzerCommand(State state, Command command) {
+    private void processFreeBuzzerCommand(QuizxelStateEntity state, Command command) {
 
         if (!isVip(state, command.getPlayerName()) || !isBuzzed(state)) return;
         String commandBody = command.getBody();
@@ -243,19 +227,18 @@ public class GameLogicServiceImpl implements GameLogicService {
         }
     }
 
-    private void handleWrongAnswer(State state) {
+    private void handleWrongAnswer(QuizxelStateEntity state) {
 
         List<Player> players = state.getPlayers();
         players.parallelStream()
                 // @formatter:off
                 .filter(player -> !player.getPlayerId().getPlayerName().equals(state.getBuzzedPlayerName()))
                 .forEach(player -> player.addPoints(1));
-                // @formatter:on
+        // @formatter:on
         freeBuzzer(state);
-
     }
 
-    private void handleTrueAnswer(State state) {
+    private void handleTrueAnswer(QuizxelStateEntity state) {
 
         List<Player> players = state.getPlayers();
         int pointsToAward = players.size() - 2;
@@ -263,16 +246,16 @@ public class GameLogicServiceImpl implements GameLogicService {
                 // @formatter:off
                 .filter(player -> player.getPlayerId().getPlayerName().equals(state.getBuzzedPlayerName()))
                 .forEach(player -> player.addPoints(pointsToAward));
-                // @formatter:on
+        // @formatter:on
         freeBuzzer(state);
     }
 
-    private void freeBuzzer(State state) {
+    private void freeBuzzer(QuizxelStateEntity state) {
 
         state.setBuzzedPlayerName(null);
     }
 
-    private boolean isBuzzed(State state) {
+    private boolean isBuzzed(QuizxelStateEntity state) {
 
         return state.getBuzzedPlayerName() != null;
     }
@@ -282,19 +265,9 @@ public class GameLogicServiceImpl implements GameLogicService {
         return state.getPlayers().stream().anyMatch(Player::getVip);
     }
 
-    private static boolean isVip(State state, String playerName) {
+    private static boolean isVip(QuizxelStateEntity state, String playerName) {
 
         return state.getPlayers().stream().anyMatch(player -> player.getPlayerId().getPlayerName().equals(playerName) && player.getVip());
     }
 
-    private void broadcastState(State state) {
-
-        try {
-            broadcastService.broadcastSeshUpdate(state);
-        } catch (NullPointerException e) {
-
-            log.error("broadcastState has failed due to stomp session being null.");
-        }
-
-    }
 }
